@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Dasco - Sistema Integrado</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
+        :root { --dasco-blue: #1d438a; --dasco-red: #e30613; }
+        .chat-container { height: calc(100vh - 220px); overflow-y: auto; scrollbar-width: none; }
+        .chat-container::-webkit-scrollbar { display: none; }
+        
+        .message-dasco { 
+            background: white; 
+            border-bottom-left-radius: 4px; 
+            align-self: flex-start; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+            animation: slideUp 0.3s ease-out; 
+            border: 1px solid #e2e8f0;
+        }
+        .message-user { 
+            background: var(--dasco-blue); 
+            color: white; 
+            border-bottom-right-radius: 4px; 
+            align-self: flex-end; 
+            animation: slideInRight 0.2s ease-out; 
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        .option-btn { border: 1px solid #e2e8f0; background: white; color: var(--dasco-blue); transition: all 0.2s; font-weight: 600; }
+        .option-btn:hover { border-color: var(--dasco-blue); background: #eff6ff; transform: translateY(-1px); }
+
+        .admin-card { 
+            background: white; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
+            transition: all 0.3s;
+            animation: fadeInScale 0.5s ease-out;
+        }
+        .admin-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .gear-icon {
+            animation: rotate 3s linear infinite;
+            cursor: pointer;
+        }
+        .gear-icon:hover {
+            animation-duration: 0.5s;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .json-file-item {
+            transition: all 0.2s;
+        }
+        .json-file-item:hover {
+            transform: translateX(5px);
+            border-color: var(--dasco-blue) !important;
+        }
+
+        .voice-pulse {
+            animation: pulse-red 1.5s infinite;
+            background: var(--dasco-red) !important;
+            color: white !important;
+        }
+        
+        @keyframes pulse-red {
+            0% { 
+                box-shadow: 0 0 0 0 rgba(227, 6, 19, 0.7);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(227, 6, 19, 0);
+                transform: scale(1.1);
+            }
+            100% { 
+                box-shadow: 0 0 0 0 rgba(227, 6, 19, 0);
+                transform: scale(1);
+            }
+        }
+
+        /* Animação de Apresentação Dasco */
+        #splashScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: linear-gradient(135deg, #1d438a 0%, #2563eb 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            animation: fadeOut 0.5s ease-out 2.5s forwards;
+        }
+
+        .dasco-logo-container {
+            animation: logoAnimation 2s ease-out;
+        }
+
+        .dasco-text {
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textGlow 2s ease-in-out infinite alternate;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .dasco-subtitle {
+            font-size: 1rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 1s forwards;
+            margin-top: 1rem;
+        }
+
+        @keyframes logoAnimation {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) translateY(50px);
+            }
+            50% {
+                transform: scale(1.1) translateY(0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes textGlow {
+            0% {
+                filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            }
+            100% {
+                filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.6));
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 8px;
+            margin-top: 2rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 1.5s forwards;
+        }
+
+        .loading-dots span {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+
+        .loading-dots span:nth-child(1) { animation-delay: 0s; }
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        /* Animações para Dashboard */
+        .stat-card {
+            animation: slideInFromBottom 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideInFromBottom {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chart-container {
+            animation: fadeInScale 0.8s ease-out;
+        }
+
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <!-- Tela de Apresentação Dasco -->
+    <div id="splashScreen">
+        <div class="dasco-logo-container">
+            <div class="bg-white p-6 rounded-3xl mb-8 shadow-2xl">
+                <img src="download.jpeg" alt="Logo Dasco" class="h-24 w-auto object-contain" onerror="this.parentElement.innerHTML='<div class=\'text-[#1d438a] font-black text-5xl\'>DASCO</div>'">
+            </div>
+            <h1 class="dasco-text">DASCO</h1>
+            <p class="dasco-subtitle">Inteligência Conectada</p>
+            <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Interface Principal -->
+    <div id="mainInterface" class="flex flex-col h-full hidden">
+        
+        <!-- Header -->
+        <header class="bg-white p-4 flex items-center justify-between border-b border-slate-200 shadow-sm z-10">
+            <div class="flex items-center space-x-3">
+                <div class="p-1.5 bg-slate-50 rounded-xl border border-slate-100">
+                    <img src="download.jpeg" alt="Dasco" class="h-8 w-auto object-contain" onerror="this.parentElement.innerHTML='<div class=\'bg-[#1d438a] text-white p-1 rounded font-bold text-[10px]\'>DS</div>'">
+                </div>
+                <div>
+                    <h1 id="viewTitle" class="font-bold text-slate-800 text-sm md:text-base leading-tight">Inteligência Dasco</h1>
+                    <div class="flex items-center space-x-1">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Sistema Ativo</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <!-- Ícone de Engrenagem para Acesso Admin -->
+                <button onclick="switchView('dashboard')" class="p-2 bg-slate-100 text-slate-500 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all gear-icon" title="Acesso ao Dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <button onclick="switchView('chat')" class="px-4 py-2 bg-slate-50 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-100 hover:bg-slate-100 transition-colors">Chat</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Container de Visualização -->
+        <div id="contentView" class="flex-1 overflow-hidden relative">
+            
+            <!-- Chat View (Sempre visível por padrão) -->
+            <div id="chatView" class="h-full flex flex-col bg-slate-50/50">
+                <main id="chatWindow" class="chat-container flex flex-col p-6 space-y-4"></main>
+                <footer class="p-4 bg-white border-t border-slate-100 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
+                    <div class="max-w-3xl mx-auto flex items-end space-x-3">
+                        <div class="flex-1 relative">
+                            <textarea id="userInput" rows="1" class="w-full p-4 pr-12 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-blue-200 outline-none resize-none text-sm transition-all" placeholder="Responda por aqui..."></textarea>
+                            <button id="micBtn" onclick="toggleVoiceRecognition()" class="absolute right-3 bottom-3 p-1.5 text-slate-400 hover:text-dasco-red transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg></button>
+                        </div>
+                        <button onclick="processInput()" class="bg-[#1d438a] text-white p-4 rounded-2xl shadow-lg hover:shadow-blue-200 active:scale-90 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7" /></svg></button>
+                    </div>
+                </footer>
+            </div>
+
+            <!-- Dashboard View (Oculto por padrão - só aparece após login admin) -->
+            <div id="dashboardView" class="h-full overflow-y-auto p-6 hidden space-y-6 bg-gradient-to-br from-slate-50 to-blue-50/30">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Dashboard Administrativo</h2>
+                        <p class="text-xs text-slate-400 font-medium mt-1">Análise em tempo real de todos os questionários</p>
+                    </div>
+                    <div class="flex space-x-2 w-full md:w-auto">
+                        <button onclick="refreshData()" class="flex-1 md:flex-none bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-blue-700 transition-all">
+                            🔄 Atualizar
+                        </button>
+                        <button onclick="exportPDF()" class="flex-1 md:flex-none bg-red-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-red-700 transition-all">Exportar PDF</button>
+                        <button onclick="exportExcel()" class="flex-1 md:flex-none bg-green-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-green-700 transition-all">Exportar Excel</button>
+                    </div>
+                </div>
+
+                <!-- Seção de Gerenciamento de Arquivos JSON -->
+                <div class="admin-card p-6 border-l-4 border-purple-600">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-1">Gerenciamento de Arquivos JSON</h3>
+                            <p class="text-xs text-slate-400">Carregue arquivos JSON do Google Drive ou sistema</p>
+                        </div>
+                        <label for="jsonFileInput" class="bg-purple-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-purple-700 transition-all cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Adicionar JSON
+                        </label>
+                        <input type="file" id="jsonFileInput" accept=".json,application/json" class="hidden" onchange="handleJsonUpload(event)" multiple>
+                    </div>
+                    
+                    <!-- Lista de Arquivos JSON -->
+                    <div id="jsonFilesList" class="mt-4 space-y-2 max-h-64 overflow-y-auto">
+                        <div class="text-center py-8 text-slate-400 text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p class="text-xs font-medium">Nenhum arquivo JSON carregado</p>
+                            <p class="text-[10px] mt-1">Clique em "Adicionar JSON" para começar</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cards de Estatísticas Animados -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="admin-card stat-card p-6 border-l-4 border-blue-600">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Participações</p>
+                            <span class="p-1.5 bg-blue-50 text-blue-600 rounded-lg text-xl">📊</span>
+                        </div>
+                        <h4 id="totalFeedbacks" class="text-4xl font-bold text-slate-800">0</h4>
+                        <p class="text-[9px] text-slate-500 mt-2">Questionários respondidos</p>
+                    </div>
+                    <div class="admin-card stat-card p-6 border-l-4 border-green-500">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nível de Orgulho</p>
+                            <span class="p-1.5 bg-green-50 text-green-600 rounded-lg text-xl">💙</span>
+                        </div>
+                        <h4 id="prideScore" class="text-4xl font-bold text-slate-800">--</h4>
+                        <p class="text-[9px] text-slate-500 mt-2">Média geral de satisfação</p>
+                    </div>
+                    <div class="admin-card stat-card p-6 border-l-4 border-amber-500">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Segurança</p>
+                            <span class="p-1.5 bg-amber-50 text-amber-600 rounded-lg text-xl">🛡️</span>
+                        </div>
+                        <h4 id="safetyAlert" class="text-4xl font-bold text-slate-800">OK</h4>
+                        <p class="text-[9px] text-slate-500 mt-2">Avaliação de segurança</p>
+                    </div>
+                    <div class="admin-card stat-card p-6 border-l-4 border-purple-500">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Liderança</p>
+                            <span class="p-1.5 bg-purple-50 text-purple-600 rounded-lg text-xl">⭐</span>
+                        </div>
+                        <h4 id="leadershipScore" class="text-4xl font-bold text-slate-800">--</h4>
+                        <p class="text-[9px] text-slate-500 mt-2">Avaliação de liderança</p>
+                    </div>
+                </div>
+
+                <!-- Gráficos Animados -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="admin-card chart-container p-8">
+                        <h5 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest">Engajamento por Categoria</h5>
+                        <div class="relative h-[300px]">
+                            <canvas id="engagementChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="admin-card chart-container p-8">
+                        <h5 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest">Evolução da Liderança</h5>
+                        <div class="relative h-[300px]">
+                            <canvas id="leadershipChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Distribuição de Respostas -->
+                <div class="admin-card chart-container p-8">
+                    <h5 class="text-xs font-black text-slate-400 uppercase mb-6 tracking-widest">Distribuição de Respostas por Questão</h5>
+                    <div class="relative h-[350px]">
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Lista de Sugestões -->
+                <div class="admin-card p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h5 class="text-xs font-black text-slate-700 uppercase tracking-widest">Feedbacks e Sugestões (Anónimos)</h5>
+                        <span class="bg-slate-100 text-slate-500 text-[10px] px-2 py-1 rounded-md font-bold uppercase pulse-animation">Recentes</span>
+                    </div>
+                    <div id="feedbackList" class="space-y-4">
+                        <div class="text-center py-10">
+                            <p class="text-xs italic text-slate-400 font-medium tracking-wide">Aguardando recebimento de ficheiros JSON...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Configuração do Google Drive
+        const GOOGLE_DRIVE_FOLDER_ID = '';
+        const GOOGLE_APPS_SCRIPT_URL = '';
+        
+        const chatWindow = document.getElementById('chatWindow');
+        const userInput = document.getElementById('userInput');
+        let currentStep = 0;
+        let userData = { timestamp: new Date().toISOString() };
+        let mockDatabase = [];
+        let jsonFiles = [];
+        let charts = {};
+
+        // Diálogo será gerado dinamicamente com saudação baseada na hora
+        function getDialogue() {
+            const greeting = getGreeting();
+            const dateTime = getFormattedDateTimeShort();
+            
+            return [
+                { 
+                    id: 'intro', 
+                    text: `${greeting}! Sou a inteligência artificial da **Dasco**. Hoje é ${dateTime}. É um prazer conversar com você. Antes de iniciarmos nossa pesquisa de clima organizacional, gostaria de saber: qual é o seu nome?`, 
+                    speak: `${greeting}! Sou a inteligência artificial da Dasco. Hoje é ${dateTime}. É um prazer conversar com você. Antes de iniciarmos nossa pesquisa de clima organizacional, gostaria de saber: qual é o seu nome?`, 
+                    type: 'open' 
+                },
+            { 
+                id: 'sigilo', 
+                text: "Muito obrigada, [NOME]! Gostaria de informar que esta pesquisa é **completamente sigilosa e anônima**. Seu nome não será utilizado em nenhum relatório ou análise. Todas as respostas serão tratadas com total confidencialidade. Podemos começar?", 
+                speak: "Muito obrigada! Gostaria de informar que esta pesquisa é completamente sigilosa e anônima. Seu nome não será utilizado em nenhum relatório ou análise. Todas as respostas serão tratadas com total confidencialidade. Podemos começar?", 
+                options: ["Sim, vamos começar", "Agora não"] 
+            },
+            { 
+                id: 'orgulho', 
+                text: "Em uma escala de avaliação, o quanto você sente **orgulho** de trabalhar na Dasco e contribuir com o saneamento da nossa região?", 
+                speak: "Em uma escala de avaliação, o quanto você sente orgulho de trabalhar na Dasco e contribuir com o saneamento da nossa região?", 
+                options: ["Muito Orgulho 💙", "Orgulho", "Neutro", "Pouco Orgulho"] 
+            },
+            { 
+                id: 'seguranca', 
+                text: "A Dasco oferece todas as condições e equipamentos de **segurança** necessários para você realizar seu trabalho com tranquilidade?", 
+                speak: "A Dasco oferece todas as condições e equipamentos de segurança necessários para você realizar seu trabalho com tranquilidade?", 
+                options: ["Sim, totalmente", "Na maioria", "Poderia melhorar", "Não"] 
+            },
+            { 
+                id: 'lideranca', 
+                text: "Como você avalia o suporte e a comunicação da sua **liderança direta** quando você encontra um problema técnico ou desafio no campo?", 
+                speak: "Como você avalia o suporte e a comunicação da sua liderança direta quando você encontra um problema técnico ou desafio no campo?", 
+                options: ["Excelente", "Bom", "Regular", "Insuficiente"] 
+            },
+            { 
+                id: 'melhoria', 
+                text: "Por fim, se você pudesse sugerir uma **melhoria imediata** em algum processo, equipamento ou aspecto da Dasco, o que seria?", 
+                speak: "Por fim, se você pudesse sugerir uma melhoria imediata em algum processo, equipamento ou aspecto da Dasco, o que seria?", 
+                type: 'open' 
+            },
+            { 
+                id: 'fim', 
+                text: "Muito obrigada pela sua participação, [NOME]! Seu feedback é extremamente valioso para nós e foi registrado com segurança no sistema Dasco. Tenha um excelente trabalho!", 
+                speak: "Muito obrigada pela sua participação! Seu feedback é extremamente valioso para nós e foi registrado com segurança no sistema Dasco. Tenha um excelente trabalho!", 
+                type: "end" 
+            }
+            ];
+        }
+
+        // Variável dialogue que será atualizada dinamicamente
+        let dialogue = getDialogue();
+
+        // Funções para data e hora
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) {
+                return 'Bom dia';
+            } else if (hour >= 12 && hour < 18) {
+                return 'Boa tarde';
+            } else {
+                return 'Boa noite';
+            }
+        }
+
+        function getFormattedDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                day: 'numeric',
+                month: 'long', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return now.toLocaleDateString('pt-BR', options);
+        }
+
+        function getFormattedDateTimeShort() {
+            const now = new Date();
+            const date = now.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+            const time = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            return `${date}, às ${time}`;
+        }
+
+        function getDateTimeForReport() {
+            const now = new Date();
+            return {
+                data: now.toLocaleDateString('pt-BR'),
+                hora: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: now.toISOString()
+            };
+        }
+
+        let selectedVoice = null;
+        function loadVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                selectedVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Google') || v.name.includes('Maria') || v.name.includes('Luciana'))) || voices.find(v => v.lang === 'pt-BR');
+                console.log('Voz selecionada:', selectedVoice?.name || 'Nenhuma voz encontrada');
+            }
+        }
+        
+        // Configurar evento para carregar vozes quando disponíveis
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        function speak(text) {
+            if (!text || text.trim() === '') {
+                console.log('Texto vazio para falar');
+                return;
+            }
+            
+            console.log('Tentando falar:', text.substring(0, 50) + '...');
+            
+            window.speechSynthesis.cancel();
+            
+            // Garantir que as vozes estejam carregadas
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                if (!selectedVoice) {
+                    selectedVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Google') || v.name.includes('Maria') || v.name.includes('Luciana'))) || voices.find(v => v.lang === 'pt-BR');
+                    console.log('Voz selecionada:', selectedVoice?.name || 'Nenhuma voz encontrada');
+                }
+            } else {
+                console.log('Nenhuma voz disponível ainda, tentando carregar...');
+                loadVoices();
+            }
+            
+            const u = new SpeechSynthesisUtterance(text);
+            if (selectedVoice) {
+                u.voice = selectedVoice;
+            }
+            u.lang = 'pt-BR';
+            u.rate = 0.95; // Velocidade reduzida para um tom mais formal e claro
+            u.pitch = 1.0; // Tom mais neutro e profissional
+            u.volume = 1.0; // Volume máximo
+            
+            u.onstart = () => {
+                console.log('Voz iniciada com sucesso!');
+            };
+            
+            u.onerror = (e) => {
+                console.error('Erro ao falar:', e);
+            };
+            
+            // Falar imediatamente
+            try {
+                window.speechSynthesis.speak(u);
+                console.log('Comando speak() executado');
+            } catch (error) {
+                console.error('Erro ao executar speak():', error);
+            }
+        }
+
+        function startExperience() {
+            setTimeout(() => {
+                document.getElementById('splashScreen').style.display = 'none';
+                document.getElementById('mainInterface').classList.remove('hidden');
+                // Carregar diálogo atualizado com saudação e data/hora
+                dialogue = getDialogue();
+                
+                // Garantir que as vozes estejam carregadas antes de começar
+                loadVoices();
+                
+                // Aguardar um pouco mais para garantir que tudo está pronto
+                setTimeout(() => {
+                    // Recarregar vozes novamente para garantir
+                    loadVoices();
+                    
+                    // Aguardar mais um pouco para garantir que as vozes foram carregadas
+                    setTimeout(() => {
+                        // Iniciar o primeiro passo
+                        nextStep();
+                    }, 500);
+                }, 500);
+            }, 3000);
+        }
+
+        function switchView(view) {
+            const isDash = view === 'dashboard';
+            const chatView = document.getElementById('chatView');
+            const dashboardView = document.getElementById('dashboardView');
+            
+            if (isDash) {
+                chatView.classList.add('hidden');
+                dashboardView.classList.remove('hidden');
+                document.getElementById('viewTitle').innerText = "Painel de Gestão Dasco";
+                updateDashboard();
+            } else {
+                chatView.classList.remove('hidden');
+                dashboardView.classList.add('hidden');
+                document.getElementById('viewTitle').innerText = "Inteligência Dasco";
+            }
+        }
+
+        function handleJsonUpload(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const jsonData = JSON.parse(e.target.result);
+                        const fileData = {
+                            id: Date.now() + Math.random(),
+                            name: file.name,
+                            size: file.size,
+                            uploadDate: new Date().toISOString(),
+                            data: Array.isArray(jsonData) ? jsonData : [jsonData]
+                        };
+                        
+                        jsonFiles.push(fileData);
+                        mockDatabase = mockDatabase.concat(fileData.data);
+                        
+                        updateJsonFilesList();
+                        updateDashboard();
+                        event.target.value = '';
+                    } catch (error) {
+                        alert(`Erro ao processar o arquivo ${file.name}: ${error.message}`);
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        function updateJsonFilesList() {
+            const listContainer = document.getElementById('jsonFilesList');
+            
+            if (jsonFiles.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-8 text-slate-400 text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p class="text-xs font-medium">Nenhum arquivo JSON carregado</p>
+                        <p class="text-[10px] mt-1">Clique em "Adicionar JSON" para começar</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listContainer.innerHTML = jsonFiles.map(file => `
+                <div class="json-file-item p-4 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                    <div class="flex items-center space-x-3 flex-1">
+                        <div class="p-2 bg-purple-100 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-slate-800 truncate">${file.name}</p>
+                            <div class="flex items-center space-x-3 mt-1">
+                                <span class="text-[10px] text-slate-500">${(file.size / 1024).toFixed(2)} KB</span>
+                                <span class="text-[10px] text-slate-500">•</span>
+                                <span class="text-[10px] text-slate-500">${file.data.length} registro(s)</span>
+                                <span class="text-[10px] text-slate-500">•</span>
+                                <span class="text-[10px] text-slate-500">${new Date(file.uploadDate).toLocaleDateString('pt-BR')}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="deleteJsonFile('${file.id}')" class="ml-4 p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all" title="Excluir arquivo">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function deleteJsonFile(fileId) {
+            if (!confirm('Tem certeza que deseja excluir este arquivo JSON?')) return;
+            
+            const fileIndex = jsonFiles.findIndex(f => f.id == fileId);
+            if (fileIndex === -1) return;
+            
+            const file = jsonFiles[fileIndex];
+            mockDatabase = mockDatabase.filter(item => {
+                return !file.data.some(fd => JSON.stringify(fd) === JSON.stringify(item));
+            });
+            
+            jsonFiles.splice(fileIndex, 1);
+            updateJsonFilesList();
+            updateDashboard();
+        }
+
+        function addMessage(text, isUser = false, options = null) {
+            const div = document.createElement('div');
+            div.className = isUser ? "message-user p-4 rounded-2xl max-w-[80%] self-end text-sm shadow-md" : "message-dasco p-4 rounded-2xl max-w-[85%] text-slate-700 text-sm leading-relaxed";
+            
+            // Substituir [NOME] pelo nome do usuário se existir
+            let displayText = text;
+            if (userData.nome) {
+                displayText = displayText.replace(/\[NOME\]/g, userData.nome);
+            }
+            
+            div.innerHTML = displayText.replace(/\*\*(.*?)\*\*/g, '<b class="text-blue-900">$1</b>');
+            chatWindow.appendChild(div);
+            
+            if (options) {
+                const optBox = document.createElement('div');
+                optBox.className = "flex flex-wrap gap-2 mt-2";
+                options.forEach(opt => {
+                    const b = document.createElement('button');
+                    b.className = "option-btn px-4 py-2 rounded-xl text-[11px] uppercase tracking-wider";
+                    b.innerText = opt;
+                    b.onclick = () => processInput(opt);
+                    optBox.appendChild(b);
+                });
+                chatWindow.appendChild(optBox);
+            }
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            // A voz será chamada pela função nextStep() explicitamente
+        }
+
+        function processInput(val = null) {
+            const input = val || userInput.value.trim();
+            if(!input) return;
+            userInput.value = '';
+            addMessage(input, true);
+            
+            if (input === 'Sim, iniciar nova pesquisa' || input === 'Sim') {
+                startNewResearch();
+                return;
+            }
+            if (input === 'Não, obrigado' || input === 'Não' || input === 'Agora não') {
+                addMessage('Entendido. Quando quiser participar, estarei à disposição. Tenha um excelente trabalho!', false);
+                return;
+            }
+            
+            // Salvar o nome se for o primeiro passo (intro)
+            if (dialogue[currentStep].id === 'intro') {
+                userData.nome = input;
+                userData[dialogue[currentStep].id] = input;
+            } else {
+                userData[dialogue[currentStep].id] = input;
+            }
+            
+            currentStep++;
+            if (currentStep < dialogue.length) {
+                setTimeout(nextStep, 800); // Aumentar um pouco o tempo para a voz terminar
+            } else {
+                saveData();
+            }
+        }
+
+        function nextStep() { 
+            if (currentStep >= dialogue.length) return;
+            
+            const step = dialogue[currentStep];
+            addMessage(step.text, false, step.options);
+            
+            // Garantir que a voz seja chamada explicitamente após renderizar
+            setTimeout(() => {
+                let speakText = step?.speak || step?.text;
+                if (speakText) {
+                    if (userData.nome) {
+                        speakText = speakText.replace(/\[NOME\]/g, userData.nome);
+                    }
+                    console.log('Chamando speak() para o passo:', currentStep, 'Texto:', speakText.substring(0, 50));
+                    speak(speakText);
+                }
+            }, 400);
+        }
+
+        function startNewResearch() {
+            currentStep = 0;
+            userData = { timestamp: new Date().toISOString() };
+            // Recarregar diálogo para atualizar saudação e data/hora
+            dialogue = getDialogue();
+            nextStep();
+        }
+
+        async function saveData() {
+            // Adicionar data e hora ao relatório
+            const dateTimeInfo = getDateTimeForReport();
+            userData.data = dateTimeInfo.data;
+            userData.hora = dateTimeInfo.hora;
+            userData.timestamp = dateTimeInfo.timestamp;
+            userData.finalizado = true;
+            
+            // Criar cópia sem o nome para o relatório
+            const reportData = {...userData};
+            delete reportData.nome; // Remover o nome do relatório
+            
+            mockDatabase.push(reportData);
+            
+            const jsonData = JSON.stringify(reportData, null, 2);
+            const fileName = `feedback_dasco_${Date.now()}.json`;
+            
+            await uploadToGoogleDrive(jsonData, fileName);
+            
+            setTimeout(() => {
+                addMessage('Deseja iniciar uma nova pesquisa?', false, ['Sim, iniciar nova pesquisa', 'Não, obrigado']);
+            }, 2000);
+        }
+
+        async function uploadToGoogleDrive(jsonContent, fileName) {
+            try {
+                if (GOOGLE_APPS_SCRIPT_URL) {
+                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fileName: fileName,
+                            fileContent: jsonContent,
+                            folderId: GOOGLE_DRIVE_FOLDER_ID || 'root'
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Arquivo enviado para Google Drive:', result);
+                        addMessage('✅ Seu feedback foi salvo com sucesso no Google Drive!', false);
+                        return true;
+                    }
+                }
+                
+                const blob = new Blob([jsonContent], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                addMessage('✅ Seu feedback foi salvo localmente. Configure o Google Drive para upload automático.', false);
+                return true;
+                
+            } catch (error) {
+                console.error('Erro ao salvar arquivo:', error);
+                addMessage('⚠️ Erro ao salvar no Google Drive. O arquivo foi salvo localmente.', false);
+                return false;
+            }
+        }
+
+        function refreshData() {
+            updateDashboard();
+            alert('Dados atualizados com sucesso!');
+        }
+
+        function updateDashboard() {
+            const total = mockDatabase.length || 0;
+            document.getElementById('totalFeedbacks').innerText = total;
+            
+            // Calcular nível de orgulho
+            const orgulhoData = mockDatabase.filter(d => d.orgulho).map(d => d.orgulho);
+            let pridePercentage = '--';
+            if (orgulhoData.length > 0) {
+                const prideScores = {
+                    'Muito Orgulho 💙': 100,
+                    'Orgulho': 75,
+                    'Neutro': 50,
+                    'Pouco Orgulho': 25
+                };
+                const avgPride = orgulhoData.reduce((sum, o) => sum + (prideScores[o] || 50), 0) / orgulhoData.length;
+                pridePercentage = Math.round(avgPride) + '%';
+            }
+            document.getElementById('prideScore').innerText = pridePercentage;
+
+            // Calcular status de segurança
+            const segurancaData = mockDatabase.filter(d => d.seguranca).map(d => d.seguranca);
+            let safetyStatus = 'OK';
+            if (segurancaData.length > 0) {
+                const negativas = segurancaData.filter(s => s === 'Não' || s === 'Poderia melhorar').length;
+                if (negativas > segurancaData.length * 0.3) {
+                    safetyStatus = 'ATENÇÃO';
+                }
+            }
+            document.getElementById('safetyAlert').innerText = safetyStatus;
+
+            // Calcular liderança
+            const liderancaData = mockDatabase.filter(d => d.lideranca).map(d => d.lideranca);
+            let leadershipScore = '--';
+            if (liderancaData.length > 0) {
+                const leadershipScores = {
+                    'Excelente': 5,
+                    'Bom': 4,
+                    'Regular': 3,
+                    'Insuficiente': 2
+                };
+                const avgLeadership = liderancaData.reduce((sum, l) => sum + (leadershipScores[l] || 3), 0) / liderancaData.length;
+                leadershipScore = avgLeadership.toFixed(1) + '/5';
+            }
+            document.getElementById('leadershipScore').innerText = leadershipScore;
+
+            // Gráfico de Engajamento
+            const ctx1 = document.getElementById('engagementChart').getContext('2d');
+            if(charts.eng) charts.eng.destroy();
+            
+            const orgulhoCount = orgulhoData.filter(o => o === 'Muito Orgulho 💙' || o === 'Orgulho').length;
+            const segurancaCount = segurancaData.filter(s => s === 'Sim, totalmente' || s === 'Na maioria').length;
+            const liderancaCount = liderancaData.filter(l => l === 'Excelente' || l === 'Bom').length;
+            
+            charts.eng = new Chart(ctx1, {
+                type: 'doughnut',
+                data: { 
+                    labels: ['Orgulho', 'Segurança', 'Liderança'], 
+                    datasets: [{ 
+                        data: [orgulhoCount || 0, segurancaCount || 0, liderancaCount || 0], 
+                        backgroundColor: ['#1d438a', '#e30613', '#64748b'], 
+                        borderWidth: 0, 
+                        hoverOffset: 10 
+                    }] 
+                },
+                options: { 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { 
+                                usePointStyle: true, 
+                                padding: 20, 
+                                font: { size: 10, weight: 'bold' } 
+                            } 
+                        } 
+                    }, 
+                    cutout: '70%' 
+                }
+            });
+
+            // Gráfico de Liderança
+            const ctx2 = document.getElementById('leadershipChart').getContext('2d');
+            if(charts.lead) charts.lead.destroy();
+            
+            const leadershipScores = {
+                'Excelente': 5,
+                'Bom': 4,
+                'Regular': 3,
+                'Insuficiente': 2
+            };
+            
+            const recentLideranca = liderancaData.slice(-10).map(l => leadershipScores[l] || 3);
+            while (recentLideranca.length < 10) {
+                recentLideranca.unshift(3.5);
+            }
+            
+            charts.lead = new Chart(ctx2, {
+                type: 'line',
+                data: { 
+                    labels: Array.from({length: 10}, (_, i) => `Dia ${i + 1}`), 
+                    datasets: [{ 
+                        label: 'Performance Liderança', 
+                        data: recentLideranca, 
+                        borderColor: '#1d438a', 
+                        backgroundColor: 'rgba(29, 67, 138, 0.1)', 
+                        fill: true, 
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }] 
+                },
+                options: { 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false } 
+                    }, 
+                    scales: { 
+                        y: { 
+                            display: false,
+                            min: 0,
+                            max: 5
+                        } 
+                    } 
+                }
+            });
+
+            // Gráfico de Distribuição
+            const ctx3 = document.getElementById('distributionChart').getContext('2d');
+            if(charts.dist) charts.dist.destroy();
+            
+            const orgulhoDist = {
+                'Muito Orgulho 💙': orgulhoData.filter(o => o === 'Muito Orgulho 💙').length,
+                'Orgulho': orgulhoData.filter(o => o === 'Orgulho').length,
+                'Neutro': orgulhoData.filter(o => o === 'Neutro').length,
+                'Pouco Orgulho': orgulhoData.filter(o => o === 'Pouco Orgulho').length
+            };
+            
+            charts.dist = new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(orgulhoDist),
+                    datasets: [{
+                        label: 'Quantidade de Respostas',
+                        data: Object.values(orgulhoDist),
+                        backgroundColor: ['#1d438a', '#3b82f6', '#64748b', '#94a3b8'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+
+            // Lista de feedbacks
+            const list = document.getElementById('feedbackList');
+            const melhorias = mockDatabase.filter(d => d.melhoria && d.melhoria.trim()).map(d => ({
+                text: d.melhoria,
+                timestamp: d.timestamp || new Date().toISOString()
+            }));
+            
+            if (melhorias.length === 0) {
+                list.innerHTML = '<div class="text-center py-10"><p class="text-xs italic text-slate-400 font-medium tracking-wide">Aguardando recebimento de ficheiros JSON...</p></div>';
+            } else {
+                list.innerHTML = melhorias.map(m => `
+                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-xs shadow-sm hover:border-blue-200 transition-colors">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-[9px] font-black text-blue-800 uppercase bg-blue-50 px-2 py-0.5 rounded">Sugestão</span>
+                            <span class="text-[9px] text-slate-400">${new Date(m.timestamp).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                        <p class="text-slate-600 font-medium">${m.text}</p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(18); doc.setTextColor(29, 67, 138);
+            doc.text("Relatório Dasco - Excelência em Saneamento", 20, 20);
+            doc.setFontSize(10); doc.setTextColor(100);
+            doc.text(`Data: ${new Date().toLocaleString('pt-BR')} | Total Feedbacks: ${mockDatabase.length}`, 20, 30);
+            doc.save("Relatorio_Feedback_Dasco.pdf");
+        }
+
+        function exportExcel() {
+            const data = mockDatabase.length > 0 ? mockDatabase : [{info: "Base de dados vazia"}];
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Dados_Dasco");
+            XLSX.writeFile(wb, "Base_Dados_Dasco.xlsx");
+        }
+
+        let recognition;
+        let isVoiceRecognitionActive = false;
+        
+        function toggleVoiceRecognition() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) {
+                alert('Reconhecimento de voz não está disponível no seu navegador.');
+                return;
+            }
+            
+            const micBtn = document.getElementById('micBtn');
+            
+            // Se já está ativo, desativar
+            if (isVoiceRecognitionActive && recognition) {
+                recognition.stop();
+                recognition = null;
+                isVoiceRecognitionActive = false;
+                micBtn.classList.remove('voice-pulse');
+                micBtn.classList.remove('bg-red-500');
+                micBtn.classList.add('text-slate-400');
+                return;
+            }
+            
+            // Ativar reconhecimento de voz contínuo
+            recognition = new SR();
+            recognition.lang = 'pt-BR';
+            recognition.continuous = true; // Modo contínuo
+            recognition.interimResults = false;
+            
+            // Indicador visual
+            micBtn.classList.add('voice-pulse');
+            micBtn.classList.add('bg-red-500');
+            micBtn.classList.remove('text-slate-400');
+            isVoiceRecognitionActive = true;
+            
+            recognition.onstart = () => {
+                console.log('Reconhecimento de voz ativado');
+            };
+            
+            recognition.onresult = (e) => {
+                const transcript = e.results[e.results.length - 1][0].transcript;
+                if (transcript.trim()) {
+                    userInput.value = transcript;
+                    processInput();
+                }
+            };
+            
+            recognition.onerror = (e) => {
+                console.error('Erro no reconhecimento de voz:', e.error);
+                if (e.error === 'no-speech') {
+                    // Se não houver fala, continua escutando
+                    return;
+                }
+            };
+            
+            recognition.onend = () => {
+                // Se foi parado manualmente, não reiniciar
+                if (isVoiceRecognitionActive) {
+                    // Reiniciar automaticamente para modo contínuo
+                    try {
+                        recognition.start();
+                    } catch (err) {
+                        console.log('Reconhecimento já está ativo');
+                    }
+                } else {
+                    micBtn.classList.remove('voice-pulse');
+                    micBtn.classList.remove('bg-red-500');
+                    micBtn.classList.add('text-slate-400');
+                }
+            };
+            
+            recognition.start();
+        }
+
+        function handleKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); processInput(); } }
+        userInput.addEventListener('keydown', handleKeyDown);
+
+        window.onload = function() {
+            // Carregar vozes imediatamente
+            loadVoices();
+            // Aguardar um pouco para garantir que as vozes foram carregadas
+            setTimeout(() => {
+                loadVoices(); // Recarregar novamente
+                startExperience();
+            }, 100);
+        };
+    </script>
+</body>
+</html>
