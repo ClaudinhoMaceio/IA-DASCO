@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Dasco - Pesquisa de Clima</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        
+        :root {
+            --dasco-blue: #1d438a;
+            --dasco-red: #e30613;
+        }
+
+        .chat-container {
+            height: calc(100vh - 220px);
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+        .chat-container::-webkit-scrollbar { display: none; }
+
+        .message-dasco {
+            background: white;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .message-user {
+            background: var(--dasco-blue);
+            color: white;
+            border-bottom-right-radius: 4px;
+            align-self: flex-end;
+            animation: slideInRight 0.2s ease-out;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        .option-btn {
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: var(--dasco-blue);
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .option-btn:hover {
+            border-color: var(--dasco-blue);
+            background: #eff6ff;
+            transform: translateY(-2px);
+        }
+
+        .voice-pulse {
+            animation: pulse-red 1s infinite;
+            background: var(--dasco-red) !important;
+            color: white !important;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(227, 6, 19, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(227, 6, 19, 0); }
+        }
+
+        .logo-container {
+            background: white;
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        #startOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(29, 67, 138, 0.98);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.4s ease;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Overlay de Início -->
+    <div id="startOverlay">
+        <div class="logo-container mb-6 animate-bounce">
+            <img src="download.jpeg" alt="Logo Dasco" class="h-16 w-auto object-contain">
+        </div>
+        <h2 class="text-2xl font-bold mb-2 text-center px-6">Feedback Dasco</h2>
+        <p class="mb-8 opacity-80 text-center px-8 text-sm">Sua opinião ajuda a construir um ambiente melhor.</p>
+        <button onclick="startExperience()" class="bg-white text-[#1d438a] px-10 py-4 rounded-full font-bold shadow-2xl hover:scale-105 active:scale-95 transition-all uppercase tracking-wider text-sm">
+            Iniciar Conversa Agora
+        </button>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-white p-4 flex items-center justify-between border-b-2 border-slate-100 shadow-sm z-10">
+        <div class="flex items-center space-x-4">
+            <div class="logo-container">
+                <img src="download.jpeg" alt="Logo Dasco" class="h-10 w-auto object-contain">
+            </div>
+            <div>
+                <h1 class="font-bold text-lg text-slate-800 tracking-tight leading-none">Inteligência Dasco</h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Feedback em Tempo Real</p>
+            </div>
+        </div>
+        <button onclick="toggleAudioMute()" id="muteBtn" class="p-2 rounded-full hover:bg-slate-50 transition-colors">
+            <svg id="speakerIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+            </svg>
+        </button>
+    </header>
+
+    <!-- Chat Area -->
+    <main id="chatWindow" class="chat-container flex flex-col p-6 space-y-4">
+    </main>
+
+    <!-- Control Area -->
+    <footer class="p-4 bg-white border-t border-slate-100">
+        <div class="max-w-3xl mx-auto flex items-end space-x-3">
+            <div class="flex-1 relative">
+                <textarea 
+                    id="userInput" 
+                    rows="1" 
+                    class="w-full p-4 pr-12 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-blue-200 outline-none resize-none transition-all text-sm"
+                    placeholder="Responda por aqui..."
+                    onkeydown="handleKeyDown(event)"
+                ></textarea>
+                <button 
+                    id="micBtn"
+                    onclick="toggleVoiceRecognition()"
+                    class="absolute right-3 bottom-3 p-1.5 rounded-full text-slate-400 hover:text-dasco-red transition-all"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </button>
+            </div>
+            <button 
+                id="sendBtn"
+                onclick="processInput()"
+                class="bg-[#1d438a] text-white p-4 rounded-2xl shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7" />
+                </svg>
+            </button>
+        </div>
+        <p class="text-center text-[9px] text-slate-400 mt-2 uppercase tracking-widest font-bold">Privacidade Total • Dasco Conectada</p>
+    </footer>
+
+    <script>
+        const SCRIPT_URL = ''; 
+        const chatWindow = document.getElementById('chatWindow');
+        const userInput = document.getElementById('userInput');
+        
+        let audioEnabled = true;
+        let currentStep = 0;
+        let userData = {};
+        let selectedVoice = null;
+
+        const dialogue = [
+            {
+                id: 'intro',
+                text: "Olá! Sou a inteligência da **Dasco**. Queremos ser a melhor empresa de saneamento para se trabalhar e, para isso, sua voz é fundamental. Posso te ouvir rapidinho?",
+                speak: "Olá! Sou a inteligência da Dasco. Queremos ser a melhor empresa de saneamento para se trabalhar e, para isso, sua voz é fundamental. Posso te ouvir rapidinho?",
+                options: ["Vamos começar!", "Agora não"]
+            },
+            {
+                id: 'orgulho',
+                text: "Em uma escala simples, o quanto você sente **orgulho** de trabalhar na Dasco e contribuir com o saneamento da nossa região?",
+                speak: "O quanto você sente orgulho de trabalhar na Dasco?",
+                options: ["Muito Orgulho 💙", "Orgulho", "Neutro", "Pouco Orgulho"]
+            },
+            {
+                id: 'seguranca',
+                text: "Sobre sua rotina: você sente que a Dasco oferece todas as condições e equipamentos de **segurança** necessários para você realizar seu trabalho?",
+                speak: "A empresa oferece condições e equipamentos de segurança adequados?",
+                options: ["Sim, totalmente", "Na maioria das vezes", "Poderia ser melhor", "Não oferece"]
+            },
+            {
+                id: 'lideranca',
+                text: "Como você avalia o suporte da sua **liderança direta** quando você encontra um problema técnico ou desafio no campo?",
+                speak: "Como você avalia o suporte da sua liderança em problemas técnicos ou desafios?",
+                options: ["Excelente", "Bom", "Regular", "Insuficiente"]
+            },
+            {
+                id: 'ferramentas',
+                text: "As ferramentas e veículos que você utiliza hoje são adequados para a agilidade que o nosso setor exige?",
+                speak: "As ferramentas e veículos são adequados para o seu trabalho?",
+                options: ["Sim, são ótimos", "Atendem o básico", "Precisam de manutenção", "São precários"]
+            },
+            {
+                id: 'melhoria',
+                text: "Espaço aberto: Se você pudesse sugerir uma **melhoria imediata** em algum processo ou equipamento da Dasco, o que seria?",
+                speak: "Se você pudesse sugerir uma melhoria imediata na empresa, o que seria?",
+                type: 'open'
+            },
+            {
+                id: 'fim',
+                text: "Muito obrigada! Sua contribuição nos ajuda a construir uma Dasco mais forte e eficiente. Bom trabalho!",
+                speak: "Muito obrigada! Sua contribuição nos ajuda a construir uma Dasco mais forte e eficiente. Bom trabalho!",
+                type: "end"
+            }
+        ];
+
+        function loadVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                // Tenta encontrar uma voz feminina premium do Google ou sistema para maior naturalidade
+                selectedVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Google') || v.name.includes('Maria') || v.name.includes('Luciana') || v.name.includes('Francisca'))) 
+                              || voices.find(v => v.lang === 'pt-BR');
+            }
+        }
+
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+
+        function speakText(text) {
+            if (!audioEnabled) return;
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            if (selectedVoice) utterance.voice = selectedVoice;
+            
+            utterance.lang = 'pt-BR';
+            // AJUSTE DE VOZ: Mais rápida e com entonação humana natural
+            utterance.rate = 1.45; 
+            utterance.pitch = 1.10; 
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function startExperience() {
+            const overlay = document.getElementById('startOverlay');
+            overlay.style.opacity = '0';
+            overlay.style.pointerEvents = 'none';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                nextStep(); 
+            }, 400);
+        }
+
+        function toggleAudioMute() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('speakerIcon');
+            icon.style.color = audioEnabled ? '#64748b' : '#ef4444';
+            if (!audioEnabled) window.speechSynthesis.cancel();
+        }
+
+        function addMessage(text, isUser = false, options = null) {
+            const container = document.createElement('div');
+            container.className = isUser ? "message-user p-4 rounded-2xl max-w-[80%] self-end text-sm shadow-sm" 
+                                       : "message-dasco p-4 rounded-2xl max-w-[85%] text-slate-700 text-sm leading-relaxed";
+            
+            const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<b class="text-dasco-blue">$1</b>');
+            container.innerHTML = `<p>${formattedText}</p>`;
+            
+            chatWindow.appendChild(container);
+            
+            if (options) {
+                const optBox = document.createElement('div');
+                optBox.className = "flex flex-wrap gap-2 mt-3";
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "option-btn px-4 py-2 rounded-xl text-xs font-semibold";
+                    btn.innerText = opt;
+                    btn.onclick = () => processInput(opt);
+                    optBox.appendChild(btn);
+                });
+                chatWindow.appendChild(optBox);
+            }
+            
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            if (!isUser) speakText(dialogue[currentStep].speak);
+        }
+
+        function processInput(val = null) {
+            const input = val || userInput.value.trim();
+            if (!input) return;
+            if (val === null) userInput.value = '';
+
+            addMessage(input, true);
+            userData[dialogue[currentStep].id] = input;
+
+            if (input === "Agora não") {
+                addMessage("Entendido. Quando quiser colaborar, estarei por aqui. Bom trabalho!");
+                return;
+            }
+
+            currentStep++;
+            if (currentStep < dialogue.length) {
+                setTimeout(nextStep, 500);
+            } else {
+                saveData();
+            }
+        }
+
+        function nextStep() {
+            const step = dialogue[currentStep];
+            addMessage(step.text, false, step.options);
+        }
+
+        async function saveData() {
+            if (SCRIPT_URL) {
+                try {
+                    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(userData) });
+                } catch (e) { console.warn("Modo offline: Feedback não enviado."); }
+            }
+        }
+
+        let recognition;
+        function toggleVoiceRecognition() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) return;
+            if (recognition && recognition.active) { recognition.stop(); return; }
+
+            recognition = new SR();
+            recognition.lang = 'pt-BR';
+            const btn = document.getElementById('micBtn');
+
+            recognition.onstart = () => btn.classList.add('voice-pulse');
+            recognition.onend = () => btn.classList.remove('voice-pulse');
+            recognition.onresult = (e) => {
+                userInput.value = e.results[0][0].transcript;
+                processInput();
+            };
+            recognition.start();
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                processInput();
+            }
+        }
+
+        window.onload = loadVoices;
+    </script>
+</body>
+</html>
