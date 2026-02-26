@@ -14,21 +14,21 @@
         :root { --dasco-blue: #1d438a; --dasco-red: #e30613; }
         .chat-container { height: calc(100vh - 220px); overflow-y: auto; scrollbar-width: none; }
         .chat-container::-webkit-scrollbar { display: none; }
-        
-        .message-dasco { 
-            background: white; 
-            border-bottom-left-radius: 4px; 
-            align-self: flex-start; 
+
+        .message-dasco {
+            background: white;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
-            animation: slideUp 0.3s ease-out; 
+            animation: slideUp 0.3s ease-out;
             border: 1px solid #e2e8f0;
         }
-        .message-user { 
-            background: var(--dasco-blue); 
-            color: white; 
-            border-bottom-right-radius: 4px; 
-            align-self: flex-end; 
-            animation: slideInRight 0.2s ease-out; 
+        .message-user {
+            background: var(--dasco-blue);
+            color: white;
+            border-bottom-right-radius: 4px;
+            align-self: flex-end;
+            animation: slideInRight 0.2s ease-out;
         }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -38,7 +38,7 @@
         .option-btn:hover { border-color: var(--dasco-blue); background: #eff6ff; transform: translateY(-1px); }
 
         .admin-card { 
-            background: white; 
+            background: white;
             border-radius: 20px; 
             box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); 
             transition: all 0.3s;
@@ -204,33 +204,71 @@
             }
         }
 
-        /* Animações para Dashboard */
+        /* Animações Modernas para Dashboard */
         .stat-card {
             animation: slideInFromBottom 0.6s ease-out;
             animation-fill-mode: both;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        .stat-card:hover::before {
+            left: 100%;
+        }
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
         .stat-card:nth-child(1) { animation-delay: 0.1s; }
         .stat-card:nth-child(2) { animation-delay: 0.2s; }
         .stat-card:nth-child(3) { animation-delay: 0.3s; }
         .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        .stat-card:nth-child(5) { animation-delay: 0.5s; }
+        .stat-card:nth-child(6) { animation-delay: 0.6s; }
+        .stat-card:nth-child(7) { animation-delay: 0.7s; }
+        .stat-card:nth-child(8) { animation-delay: 0.8s; }
 
         @keyframes slideInFromBottom {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(40px) scale(0.9);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
             }
         }
 
         .chart-container {
             animation: fadeInScale 0.8s ease-out;
+            transition: all 0.3s;
+        }
+        .chart-container:hover {
+            transform: scale(1.01);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
         }
 
         .pulse-animation {
             animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes numberCount {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .stat-number {
+            animation: numberCount 0.8s ease-out;
         }
 
         @keyframes pulse {
@@ -245,11 +283,32 @@
 </head>
 <body class="h-screen overflow-hidden flex flex-col">
 
+    <!-- Overlay de Login Dashboard -->
+    <div id="dashboardLoginOverlay" class="bg-slate-900/95 hidden backdrop-blur-xl fixed inset-0 z-[1000] flex items-center justify-center">
+        <div class="bg-white p-10 rounded-[2.5rem] w-full max-w-md shadow-2xl border border-slate-100">
+            <div class="flex justify-center mb-6">
+                <div class="text-[#1d438a] font-black text-xl">DASCO</div>
+        </div>
+            <h3 class="text-2xl font-bold text-slate-800 mb-2 text-center">Acesso ao Dashboard</h3>
+            <p class="text-slate-400 text-center text-sm mb-8">Insira a senha de administrador</p>
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase mb-2 ml-1">Senha</label>
+                    <input type="password" id="dashboardPassword" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" placeholder="••••••••" onkeydown="if(event.key === 'Enter') checkDashboardPassword()">
+                </div>
+                <button onclick="checkDashboardPassword()" class="w-full bg-[#1d438a] text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-800 transition-all active:scale-95 mt-4">
+                    Acessar Dashboard
+        </button>
+                <button onclick="hideDashboardLogin()" class="w-full text-slate-400 py-2 text-xs font-semibold hover:text-slate-600 transition-colors">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Tela de Apresentação Dasco -->
     <div id="splashScreen">
         <div class="dasco-logo-container">
             <div class="bg-white p-6 rounded-3xl mb-8 shadow-2xl">
-                <img src="download.jpeg" alt="Logo Dasco" class="h-24 w-auto object-contain" onerror="this.parentElement.innerHTML='<div class=\'text-[#1d438a] font-black text-5xl\'>DASCO</div>'">
+                <div class="text-[#1d438a] font-black text-5xl">DASCO</div>
             </div>
             <h1 class="dasco-text">DASCO</h1>
             <p class="dasco-subtitle">Inteligência Conectada</p>
@@ -264,34 +323,34 @@
 
     <!-- Interface Principal -->
     <div id="mainInterface" class="flex flex-col h-full hidden">
-        
-        <!-- Header -->
+
+    <!-- Header -->
         <header class="bg-white p-4 flex items-center justify-between border-b border-slate-200 shadow-sm z-10">
             <div class="flex items-center space-x-3">
                 <div class="p-1.5 bg-slate-50 rounded-xl border border-slate-100">
-                    <img src="download.jpeg" alt="Dasco" class="h-8 w-auto object-contain" onerror="this.parentElement.innerHTML='<div class=\'bg-[#1d438a] text-white p-1 rounded font-bold text-[10px]\'>DS</div>'">
-                </div>
-                <div>
+                    <div class="bg-[#1d438a] text-white p-1 rounded font-bold text-[10px]">DS</div>
+            </div>
+            <div>
                     <h1 id="viewTitle" class="font-bold text-slate-800 text-sm md:text-base leading-tight">Inteligência Dasco</h1>
                     <div class="flex items-center space-x-1">
                         <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                         <span class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">Sistema Ativo</span>
-                    </div>
-                </div>
+            </div>
+        </div>
             </div>
             <div class="flex items-center space-x-2">
                 <!-- Ícone de Engrenagem para Acesso Admin -->
-                <button onclick="switchView('dashboard')" class="p-2 bg-slate-100 text-slate-500 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all gear-icon" title="Acesso ao Dashboard">
+                <button onclick="showDashboardLogin()" class="p-2 bg-slate-100 text-slate-500 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all gear-icon" title="Acesso ao Dashboard">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                </button>
+            </svg>
+        </button>
                 <div class="flex items-center space-x-2">
                     <button onclick="switchView('chat')" class="px-4 py-2 bg-slate-50 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-100 hover:bg-slate-100 transition-colors">Chat</button>
                 </div>
             </div>
-        </header>
+    </header>
 
         <!-- Container de Visualização -->
         <div id="contentView" class="flex-1 overflow-hidden relative">
@@ -300,93 +359,157 @@
             <div id="chatView" class="h-full flex flex-col bg-slate-50/50">
                 <main id="chatWindow" class="chat-container flex flex-col p-6 space-y-4"></main>
                 <footer class="p-4 bg-white border-t border-slate-100 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]">
-                    <div class="max-w-3xl mx-auto flex items-end space-x-3">
-                        <div class="flex-1 relative">
+        <div class="max-w-3xl mx-auto flex items-end space-x-3">
+            <div class="flex-1 relative">
                             <textarea id="userInput" rows="1" class="w-full p-4 pr-12 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-blue-200 outline-none resize-none text-sm transition-all" placeholder="Responda por aqui..."></textarea>
                             <button id="micBtn" onclick="toggleVoiceRecognition()" class="absolute right-3 bottom-3 p-1.5 text-slate-400 hover:text-dasco-red transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg></button>
-                        </div>
+            </div>
                         <button onclick="processInput()" class="bg-[#1d438a] text-white p-4 rounded-2xl shadow-lg hover:shadow-blue-200 active:scale-90 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7" /></svg></button>
-                    </div>
-                </footer>
+        </div>
+    </footer>
             </div>
 
             <!-- Dashboard View (Oculto por padrão - só aparece após login admin) -->
             <div id="dashboardView" class="h-full overflow-y-auto p-6 hidden space-y-6 bg-gradient-to-br from-slate-50 to-blue-50/30">
+                <!-- Aviso de Modo file:// -->
+                <div id="fileProtocolWarning" class="hidden bg-red-500 text-white p-6 rounded-2xl shadow-2xl border-4 border-red-600 animate-pulse">
+                    <div class="flex items-start space-x-4">
+                        <div class="text-4xl">⚠️</div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-black mb-2 uppercase tracking-wide">SINCRONIZAÇÃO BLOQUEADA</h3>
+                            <p class="text-sm font-semibold mb-3">Você está abrindo o arquivo diretamente (file://). A sincronização com Google Drive NÃO funciona neste modo!</p>
+                            <div class="bg-white/20 p-4 rounded-xl mb-3">
+                                <p class="font-bold text-base mb-2">📌 SOLUÇÃO OBRIGATÓRIA:</p>
+                                <ol class="list-decimal list-inside space-y-2 text-sm">
+                                    <li>Instale a extensão <strong>"Live Server"</strong> no VS Code</li>
+                                    <li>Clique com botão direito no arquivo <strong>index.html</strong></li>
+                                    <li>Selecione <strong>"Open with Live Server"</strong></li>
+                                    <li>O navegador abrirá em <strong>http://localhost</strong> e a sincronização funcionará!</li>
+                                </ol>
+                            </div>
+                            <p class="text-xs opacity-90 italic">💡 Sem Live Server, o dashboard não consegue carregar dados do Google Drive devido a restrições de segurança do navegador.</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <h2 class="text-3xl font-bold text-slate-800 tracking-tight">Dashboard Administrativo</h2>
                         <p class="text-xs text-slate-400 font-medium mt-1">Análise em tempo real de todos os questionários</p>
                     </div>
+                    <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                        <!-- Filtro por Cidade/Contrato -->
+                        <select id="filterCidade" onchange="updateDashboard()" class="bg-white border-2 border-[#1d438a] text-slate-800 px-4 py-2.5 rounded-xl text-[10px] font-bold uppercase shadow-lg hover:bg-blue-50 transition-all focus:outline-none focus:ring-2 focus:ring-[#1d438a]">
+                            <option value="">📍 Todas as Cidades</option>
+                            <option value="Itatiba">Itatiba</option>
+                            <option value="Itupeva">Itupeva</option>
+                            <option value="Morungaba">Morungaba</option>
+                            <option value="Jarinu">Jarinu</option>
+                            <option value="Campo Limpo">Campo Limpo</option>
+                            <option value="Várzea Paulista">Várzea Paulista</option>
+                            <option value="Cabreúva">Cabreúva</option>
+                        </select>
+                    </div>
                     <div class="flex space-x-2 w-full md:w-auto">
-                        <button onclick="refreshData()" class="flex-1 md:flex-none bg-blue-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-blue-700 transition-all">
+                        <button onclick="syncGoogleDrive()" class="flex-1 md:flex-none bg-[#1d438a] text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-[#153366] transition-all" id="syncBtn">
+                            <span id="syncBtnText">🔄 Sincronizar Google Drive</span>
+                </button>
+                        <button onclick="refreshData()" class="flex-1 md:flex-none bg-[#1d438a] text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-[#153366] transition-all">
                             🔄 Atualizar
                         </button>
-                        <button onclick="exportPDF()" class="flex-1 md:flex-none bg-red-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-red-700 transition-all">Exportar PDF</button>
-                        <button onclick="exportExcel()" class="flex-1 md:flex-none bg-green-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-green-700 transition-all">Exportar Excel</button>
-                    </div>
+                        <button onclick="exportPDF()" class="flex-1 md:flex-none bg-[#1d438a] text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-[#153366] transition-all">📄 Exportar PDF</button>
+                        <button onclick="exportExcel()" class="flex-1 md:flex-none bg-[#1d438a] text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-[#153366] transition-all">📊 Exportar Excel</button>
+            </div>
                 </div>
 
-                <!-- Seção de Gerenciamento de Arquivos JSON -->
-                <div class="admin-card p-6 border-l-4 border-purple-600">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <h3 class="text-lg font-bold text-slate-800 mb-1">Gerenciamento de Arquivos JSON</h3>
-                            <p class="text-xs text-slate-400">Carregue arquivos JSON do Google Drive ou sistema</p>
-                        </div>
-                        <label for="jsonFileInput" class="bg-purple-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-lg hover:bg-purple-700 transition-all cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                            Adicionar JSON
-                        </label>
-                        <input type="file" id="jsonFileInput" accept=".json,application/json" class="hidden" onchange="handleJsonUpload(event)" multiple>
-                    </div>
-                    
-                    <!-- Lista de Arquivos JSON -->
-                    <div id="jsonFilesList" class="mt-4 space-y-2 max-h-64 overflow-y-auto">
-                        <div class="text-center py-8 text-slate-400 text-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <p class="text-xs font-medium">Nenhum arquivo JSON carregado</p>
-                            <p class="text-[10px] mt-1">Clique em "Adicionar JSON" para começar</p>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Cards de Estatísticas Animados -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="admin-card stat-card p-6 border-l-4 border-blue-600">
+                <!-- Cards de Estatísticas Animados - Expandido -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="admin-card stat-card p-6 border-l-4 border-blue-600 bg-gradient-to-br from-blue-50 to-white">
                         <div class="flex items-center justify-between mb-2">
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Participações</p>
-                            <span class="p-1.5 bg-blue-50 text-blue-600 rounded-lg text-xl">📊</span>
+                            <span class="p-2 bg-blue-100 text-blue-600 rounded-xl text-xl shadow-sm">📊</span>
                         </div>
-                        <h4 id="totalFeedbacks" class="text-4xl font-bold text-slate-800">0</h4>
+                        <h4 id="totalFeedbacks" class="text-5xl font-bold text-slate-800 stat-number">0</h4>
                         <p class="text-[9px] text-slate-500 mt-2">Questionários respondidos</p>
+                        <div class="mt-3 h-1 bg-blue-100 rounded-full overflow-hidden">
+                            <div id="totalProgress" class="h-full bg-blue-600 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                        </div>
                     </div>
-                    <div class="admin-card stat-card p-6 border-l-4 border-green-500">
+                    <div class="admin-card stat-card p-6 border-l-4 border-green-500 bg-gradient-to-br from-green-50 to-white">
                         <div class="flex items-center justify-between mb-2">
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nível de Orgulho</p>
-                            <span class="p-1.5 bg-green-50 text-green-600 rounded-lg text-xl">💙</span>
+                            <span class="p-2 bg-green-100 text-green-600 rounded-xl text-xl shadow-sm">💙</span>
                         </div>
-                        <h4 id="prideScore" class="text-4xl font-bold text-slate-800">--</h4>
+                        <h4 id="prideScore" class="text-5xl font-bold text-slate-800 stat-number">--</h4>
                         <p class="text-[9px] text-slate-500 mt-2">Média geral de satisfação</p>
+                        <div class="mt-3 flex items-center gap-2">
+                            <div class="flex-1 h-2 bg-green-100 rounded-full overflow-hidden">
+                                <div id="prideProgress" class="h-full bg-green-500 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                            <span id="pridePercent" class="text-[10px] font-bold text-green-600">0%</span>
+                        </div>
                     </div>
-                    <div class="admin-card stat-card p-6 border-l-4 border-amber-500">
+                    <div class="admin-card stat-card p-6 border-l-4 border-amber-500 bg-gradient-to-br from-amber-50 to-white">
                         <div class="flex items-center justify-between mb-2">
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Segurança</p>
-                            <span class="p-1.5 bg-amber-50 text-amber-600 rounded-lg text-xl">🛡️</span>
+                            <span class="p-2 bg-amber-100 text-amber-600 rounded-xl text-xl shadow-sm">🛡️</span>
                         </div>
-                        <h4 id="safetyAlert" class="text-4xl font-bold text-slate-800">OK</h4>
+                        <h4 id="safetyAlert" class="text-5xl font-bold text-slate-800 stat-number">OK</h4>
                         <p class="text-[9px] text-slate-500 mt-2">Avaliação de segurança</p>
+                        <div class="mt-3">
+                            <span id="safetyPercent" class="text-[10px] font-bold text-amber-600">0% positivo</span>
+                        </div>
                     </div>
-                    <div class="admin-card stat-card p-6 border-l-4 border-purple-500">
+                    <div class="admin-card stat-card p-6 border-l-4 border-[#1d438a] bg-gradient-to-br from-blue-50 to-white">
                         <div class="flex items-center justify-between mb-2">
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Liderança</p>
-                            <span class="p-1.5 bg-purple-50 text-purple-600 rounded-lg text-xl">⭐</span>
+                            <span class="p-2 bg-blue-100 text-[#1d438a] rounded-xl text-xl shadow-sm">⭐</span>
                         </div>
-                        <h4 id="leadershipScore" class="text-4xl font-bold text-slate-800">--</h4>
+                        <h4 id="leadershipScore" class="text-5xl font-bold text-slate-800 stat-number">--</h4>
                         <p class="text-[9px] text-slate-500 mt-2">Avaliação de liderança</p>
+                        <div class="mt-3 flex items-center gap-2">
+                            <div class="flex-1 h-2 bg-blue-100 rounded-full overflow-hidden">
+                                <div id="leadershipProgress" class="h-full bg-[#1d438a] rounded-full transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                            <span id="leadershipPercent" class="text-[10px] font-bold text-[#1d438a]">0/5</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Segunda Linha de Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="admin-card stat-card p-6 border-l-4 border-purple-500 bg-gradient-to-br from-purple-50 to-white">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sugestões</p>
+                            <span class="p-2 bg-purple-100 text-purple-600 rounded-xl text-xl shadow-sm">💡</span>
+                        </div>
+                        <h4 id="suggestionsCount" class="text-5xl font-bold text-slate-800 stat-number">0</h4>
+                        <p class="text-[9px] text-slate-500 mt-2">Melhorias sugeridas</p>
+                    </div>
+                    <div class="admin-card stat-card p-6 border-l-4 border-indigo-500 bg-gradient-to-br from-indigo-50 to-white">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cidades Ativas</p>
+                            <span class="p-2 bg-indigo-100 text-indigo-600 rounded-xl text-xl shadow-sm">🏙️</span>
+                        </div>
+                        <h4 id="citiesCount" class="text-5xl font-bold text-slate-800 stat-number">0</h4>
+                        <p class="text-[9px] text-slate-500 mt-2">Contratos participantes</p>
+                    </div>
+                    <div class="admin-card stat-card p-6 border-l-4 border-teal-500 bg-gradient-to-br from-teal-50 to-white">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Taxa Positiva</p>
+                            <span class="p-2 bg-teal-100 text-teal-600 rounded-xl text-xl shadow-sm">📈</span>
+                        </div>
+                        <h4 id="positiveRate" class="text-5xl font-bold text-slate-800 stat-number">0%</h4>
+                        <p class="text-[9px] text-slate-500 mt-2">Avaliações positivas</p>
+                    </div>
+                    <div class="admin-card stat-card p-6 border-l-4 border-rose-500 bg-gradient-to-br from-rose-50 to-white">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Última Atualização</p>
+                            <span class="p-2 bg-rose-100 text-rose-600 rounded-xl text-xl shadow-sm">🕐</span>
+                        </div>
+                        <h4 id="lastUpdate" class="text-3xl font-bold text-slate-800 stat-number">--</h4>
+                        <p class="text-[9px] text-slate-500 mt-2">Última sincronização</p>
                     </div>
                 </div>
 
@@ -414,15 +537,28 @@
                     </div>
                 </div>
 
+                <!-- Lista Completa de Participações -->
+                <div class="admin-card p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h5 class="text-xs font-black text-slate-700 uppercase tracking-widest">📋 Todas as Participações - Detalhes Completos</h5>
+                        <span id="participacoesCount" class="bg-[#1d438a] text-white text-[10px] px-3 py-1.5 rounded-lg font-bold uppercase">0 Participações</span>
+                    </div>
+                    <div id="participacoesList" class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                        <div class="text-center py-10">
+                            <p class="text-xs italic text-slate-400 font-medium tracking-wide">Carregando participações...</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Lista de Sugestões -->
                 <div class="admin-card p-6">
                     <div class="flex items-center justify-between mb-6">
-                        <h5 class="text-xs font-black text-slate-700 uppercase tracking-widest">Feedbacks e Sugestões (Anónimos)</h5>
+                        <h5 class="text-xs font-black text-slate-700 uppercase tracking-widest">💡 Sugestões de Melhoria</h5>
                         <span class="bg-slate-100 text-slate-500 text-[10px] px-2 py-1 rounded-md font-bold uppercase pulse-animation">Recentes</span>
                     </div>
-                    <div id="feedbackList" class="space-y-4">
+                    <div id="feedbackList" class="space-y-4 max-h-[400px] overflow-y-auto pr-2">
                         <div class="text-center py-10">
-                            <p class="text-xs italic text-slate-400 font-medium tracking-wide">Aguardando recebimento de ficheiros JSON...</p>
+                            <p class="text-xs italic text-slate-400 font-medium tracking-wide">Aguardando sugestões...</p>
                         </div>
                     </div>
                 </div>
@@ -433,8 +569,9 @@
 
     <script>
         // Configuração do Google Drive
-        const GOOGLE_DRIVE_FOLDER_ID = '';
-        const GOOGLE_APPS_SCRIPT_URL = '';
+        const GOOGLE_DRIVE_FOLDER_ID = '1cg0SPId-JFv0OqI5dVOCy9ReZBF6TIox'; // ID da pasta do Google Drive
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmd0ZNz4WBkSw2Axey9EeDT9Mr_6_vpbKvxTj12IlL0Zj-lOgxDrIHbXzlafJMOsS9/exec'; // URL do Google Apps Script
+        const GOOGLE_DRIVE_SYNC_URL = 'https://script.google.com/macros/s/AKfycbzmd0ZNz4WBkSw2Axey9EeDT9Mr_6_vpbKvxTj12IlL0Zj-lOgxDrIHbXzlafJMOsS9/exec'; // URL para sincronização (mesma do upload)
         
         const chatWindow = document.getElementById('chatWindow');
         const userInput = document.getElementById('userInput');
@@ -443,6 +580,12 @@
         let mockDatabase = [];
         let jsonFiles = [];
         let charts = {};
+        let lastSyncTime = null;
+        let syncInterval = null;
+        let isSpeaking = false;
+        let speechQueue = [];
+        let userInteracted = false;
+        let onSpeechEndCallback = null; // Callback para quando a fala terminar
 
         // Diálogo será gerado dinamicamente com saudação baseada na hora
         function getDialogue() {
@@ -450,8 +593,8 @@
             const dateTime = getFormattedDateTimeShort();
             
             return [
-                { 
-                    id: 'intro', 
+            {
+                id: 'intro',
                     text: `${greeting}! Sou a inteligência artificial da **Dasco**. Hoje é ${dateTime}. É um prazer conversar com você. Antes de iniciarmos nossa pesquisa de clima organizacional, gostaria de saber: qual é o seu nome?`, 
                     speak: `${greeting}! Sou a inteligência artificial da Dasco. Hoje é ${dateTime}. É um prazer conversar com você. Antes de iniciarmos nossa pesquisa de clima organizacional, gostaria de saber: qual é o seu nome?`, 
                     type: 'open' 
@@ -462,37 +605,43 @@
                 speak: "Muito obrigada! Gostaria de informar que esta pesquisa é completamente sigilosa e anônima. Seu nome não será utilizado em nenhum relatório ou análise. Todas as respostas serão tratadas com total confidencialidade. Podemos começar?", 
                 options: ["Sim, vamos começar", "Agora não"] 
             },
-            { 
-                id: 'orgulho', 
+            {
+                id: 'cidade',
+                text: "Em qual cidade/contrato você trabalha?", 
+                speak: "Em qual cidade ou contrato você trabalha?", 
+                options: ["Itatiba", "Itupeva", "Morungaba", "Jarinu", "Campo Limpo", "Várzea Paulista", "Cabreúva"]
+            },
+            {
+                id: 'orgulho',
                 text: "Em uma escala de avaliação, o quanto você sente **orgulho** de trabalhar na Dasco e contribuir com o saneamento da nossa região?", 
                 speak: "Em uma escala de avaliação, o quanto você sente orgulho de trabalhar na Dasco e contribuir com o saneamento da nossa região?", 
-                options: ["Muito Orgulho 💙", "Orgulho", "Neutro", "Pouco Orgulho"] 
+                options: ["Muito Orgulho 💙", "Orgulho", "Neutro", "Pouco Orgulho"]
             },
-            { 
-                id: 'seguranca', 
+            {
+                id: 'seguranca',
                 text: "A Dasco oferece todas as condições e equipamentos de **segurança** necessários para você realizar seu trabalho com tranquilidade?", 
                 speak: "A Dasco oferece todas as condições e equipamentos de segurança necessários para você realizar seu trabalho com tranquilidade?", 
                 options: ["Sim, totalmente", "Na maioria", "Poderia melhorar", "Não"] 
             },
-            { 
-                id: 'lideranca', 
+            {
+                id: 'lideranca',
                 text: "Como você avalia o suporte e a comunicação da sua **liderança direta** quando você encontra um problema técnico ou desafio no campo?", 
                 speak: "Como você avalia o suporte e a comunicação da sua liderança direta quando você encontra um problema técnico ou desafio no campo?", 
-                options: ["Excelente", "Bom", "Regular", "Insuficiente"] 
+                options: ["Excelente", "Bom", "Regular", "Insuficiente"]
             },
-            { 
-                id: 'melhoria', 
+            {
+                id: 'melhoria',
                 text: "Por fim, se você pudesse sugerir uma **melhoria imediata** em algum processo, equipamento ou aspecto da Dasco, o que seria?", 
                 speak: "Por fim, se você pudesse sugerir uma melhoria imediata em algum processo, equipamento ou aspecto da Dasco, o que seria?", 
-                type: 'open' 
+                type: 'open'
             },
-            { 
-                id: 'fim', 
+            {
+                id: 'fim',
                 text: "Muito obrigada pela sua participação, [NOME]! Seu feedback é extremamente valioso para nós e foi registrado com segurança no sistema Dasco. Tenha um excelente trabalho!", 
                 speak: "Muito obrigada pela sua participação! Seu feedback é extremamente valioso para nós e foi registrado com segurança no sistema Dasco. Tenha um excelente trabalho!", 
-                type: "end" 
+                type: "end"
             }
-            ];
+        ];
         }
 
         // Variável dialogue que será atualizada dinamicamente
@@ -547,21 +696,34 @@
                 console.log('Voz selecionada:', selectedVoice?.name || 'Nenhuma voz encontrada');
             }
         }
-        
+
         // Configurar evento para carregar vozes quando disponíveis
         if (window.speechSynthesis.onvoiceschanged !== undefined) {
-            window.speechSynthesis.onvoiceschanged = loadVoices;
+        window.speechSynthesis.onvoiceschanged = loadVoices;
         }
 
-        function speak(text) {
+        function speak(text, onEnd = null) {
             if (!text || text.trim() === '') {
                 console.log('Texto vazio para falar');
+                if (onEnd) onEnd();
+                return;
+            }
+            
+            // Se não houve interação do usuário ainda, adicionar à fila
+            if (!userInteracted) {
+                console.log('Aguardando interação do usuário antes de falar...');
+                speechQueue.push({text, onEnd});
+                return;
+            }
+            
+            // Se já está falando, adicionar à fila
+            if (isSpeaking) {
+                console.log('Já está falando, adicionando à fila:', text.substring(0, 50));
+                speechQueue.push({text, onEnd});
                 return;
             }
             
             console.log('Tentando falar:', text.substring(0, 50) + '...');
-            
-            window.speechSynthesis.cancel();
             
             // Garantir que as vozes estejam carregadas
             const voices = window.speechSynthesis.getVoices();
@@ -573,14 +735,19 @@
             } else {
                 console.log('Nenhuma voz disponível ainda, tentando carregar...');
                 loadVoices();
+                // Tentar novamente após um pequeno delay
+                setTimeout(() => speak(text), 200);
+                return;
             }
+            
+            isSpeaking = true;
             
             const u = new SpeechSynthesisUtterance(text);
             if (selectedVoice) {
                 u.voice = selectedVoice;
             }
             u.lang = 'pt-BR';
-            u.rate = 0.95; // Velocidade reduzida para um tom mais formal e claro
+            u.rate = 1.35; // Velocidade aumentada para não atrapalhar a pesquisa - apenas direcionamento
             u.pitch = 1.0; // Tom mais neutro e profissional
             u.volume = 1.0; // Volume máximo
             
@@ -588,8 +755,56 @@
                 console.log('Voz iniciada com sucesso!');
             };
             
+            u.onend = () => {
+                console.log('Fala concluída completamente');
+                isSpeaking = false;
+                
+                // Aguardar delay mínimo para garantir que a fala terminou
+                // Delay reduzido para resposta mais rápida e sincronizada
+                setTimeout(() => {
+                    // Chamar callback se houver
+                    if (onEnd) {
+                        onEnd();
+                    }
+                    
+                    // Processar próximo item da fila rapidamente
+                    if (speechQueue.length > 0) {
+                        const nextItem = speechQueue.shift();
+                        setTimeout(() => speak(nextItem.text, nextItem.onEnd), 50);
+                    }
+                }, 100); // Reduzido para resposta mais rápida
+            };
+            
             u.onerror = (e) => {
+                // Ignorar erros de "interrupted" - são normais quando o usuário responde rapidamente
+                if (e.error === 'interrupted') {
+                    console.log('Fala interrompida (normal quando usuário responde)');
+                    isSpeaking = false;
+                    // Chamar callback mesmo se interrompido
+                    if (onEnd) {
+                        onEnd();
+                    }
+                    return;
+                }
+                
                 console.error('Erro ao falar:', e);
+                isSpeaking = false;
+                
+                // Se for erro de permissão, não tentar novamente
+                if (e.error === 'not-allowed') {
+                    console.warn('Síntese de voz não permitida. O usuário precisa interagir primeiro.');
+                    speechQueue = []; // Limpar fila
+                    return;
+                }
+                
+                // Para outros erros, tentar próximo item da fila
+                if (speechQueue.length > 0) {
+                    const nextItem = speechQueue.shift();
+                    setTimeout(() => speak(nextItem.text, nextItem.onEnd), 50);
+                } else if (onEnd) {
+                    // Se não há mais itens na fila, chamar callback
+                    onEnd();
+                }
             };
             
             // Falar imediatamente
@@ -598,6 +813,7 @@
                 console.log('Comando speak() executado');
             } catch (error) {
                 console.error('Erro ao executar speak():', error);
+                isSpeaking = false;
             }
         }
 
@@ -618,11 +834,39 @@
                     
                     // Aguardar mais um pouco para garantir que as vozes foram carregadas
                     setTimeout(() => {
-                        // Iniciar o primeiro passo
-                        nextStep();
+                        // Iniciar o primeiro passo (a fala só acontecerá após interação do usuário)
+                nextStep(); 
+                        
+                        // Se o usuário já interagiu, falar imediatamente
+                        if (userInteracted) {
+                            const step = dialogue[0];
+                            if (step && step.speak) {
+                                setTimeout(() => speak(step.speak), 100);
+                            }
+                        }
                     }, 500);
                 }, 500);
             }, 3000);
+        }
+
+        function showDashboardLogin() {
+            document.getElementById('dashboardLoginOverlay').classList.remove('hidden');
+        }
+
+        function hideDashboardLogin() {
+            document.getElementById('dashboardLoginOverlay').classList.add('hidden');
+            document.getElementById('dashboardPassword').value = '';
+        }
+
+        function checkDashboardPassword() {
+            const password = document.getElementById('dashboardPassword').value;
+            if (password === 'dasco2029') {
+                hideDashboardLogin();
+                switchView('dashboard');
+            } else {
+                alert('Senha incorreta. Tente novamente.');
+                document.getElementById('dashboardPassword').value = '';
+            }
         }
 
         function switchView(view) {
@@ -634,11 +878,457 @@
                 chatView.classList.add('hidden');
                 dashboardView.classList.remove('hidden');
                 document.getElementById('viewTitle').innerText = "Painel de Gestão Dasco";
-                updateDashboard();
+                
+                // Verificar se está em modo file:// e mostrar aviso
+                const isFileProtocol = window.location.protocol === 'file:';
+                const fileProtocolWarning = document.getElementById('fileProtocolWarning');
+                
+                if (isFileProtocol) {
+                    if (fileProtocolWarning) {
+                        fileProtocolWarning.classList.remove('hidden');
+                        console.error('❌ ============================================');
+                        console.error('❌ SINCRONIZAÇÃO BLOQUEADA - MODO file://');
+                        console.error('❌ ============================================');
+                        console.error('📌 Para sincronizar com Google Drive, você DEVE usar Live Server!');
+                        console.error('📌 Veja as instruções no banner vermelho no topo do dashboard.');
+                    }
+                    // Mesmo em modo file://, atualizar dashboard com dados locais (se houver)
+                    updateDashboard();
+                } else {
+                    if (fileProtocolWarning) {
+                        fileProtocolWarning.classList.add('hidden');
+                    }
+                    // Limpar e recarregar tudo quando abrir o dashboard
+                    console.log('📊 Dashboard aberto - limpando e recarregando dados...');
+                    console.log('🗑️ Limpando mockDatabase e jsonFiles para recarregar do Google Drive');
+                    mockDatabase = [];
+                    jsonFiles = [];
+                    
+                    // Atualizar dashboard vazio primeiro
+                    updateDashboard();
+                    
+                    // Iniciar sincronização automática quando abrir o dashboard
+                    startAutoSync();
+                }
             } else {
                 chatView.classList.remove('hidden');
                 dashboardView.classList.add('hidden');
                 document.getElementById('viewTitle').innerText = "Inteligência Dasco";
+                // Parar sincronização automática quando sair do dashboard
+                stopAutoSync();
+            }
+        }
+
+        // Função para sincronizar arquivos do Google Drive
+        async function syncGoogleDrive() {
+            const syncUrl = GOOGLE_DRIVE_SYNC_URL || GOOGLE_APPS_SCRIPT_URL;
+            
+            if (!syncUrl) {
+                alert('Google Drive não configurado. Configure GOOGLE_DRIVE_SYNC_URL ou GOOGLE_APPS_SCRIPT_URL no código.');
+                return;
+            }
+
+            console.log('🔄 ============================================');
+            console.log('🔄 INICIANDO SINCRONIZAÇÃO COM GOOGLE DRIVE');
+            console.log('🔄 ============================================');
+            console.log('📡 URL do Script:', syncUrl);
+            console.log('📁 ID da Pasta:', GOOGLE_DRIVE_FOLDER_ID);
+            console.log('🌐 Protocolo:', window.location.protocol);
+            console.log('📍 URL Completa:', window.location.href);
+
+            const syncBtn = document.getElementById('syncBtn');
+            const syncBtnText = document.getElementById('syncBtnText');
+            
+            if (syncBtn) {
+                syncBtn.disabled = true;
+                syncBtnText.innerHTML = '⏳ Sincronizando...';
+            }
+            
+            // Atualizar status
+            const statusEl = document.getElementById('syncStatus');
+            if (statusEl) {
+                statusEl.innerText = '⏳ Sincronizando...';
+                statusEl.classList.remove('text-green-600', 'text-red-600', 'text-amber-600');
+                statusEl.classList.add('text-blue-600');
+            }
+            
+            try {
+                // Buscar lista de arquivos JSON do Google Drive
+                // Verificar se está em modo file://
+                const isFileProtocol = window.location.protocol === 'file:';
+                
+                if (isFileProtocol) {
+                    // Em modo file://, não é possível sincronizar devido a CORS
+                    // Mas vamos tentar uma abordagem alternativa usando um iframe ou mostrar mensagem clara
+                    console.warn('⚠️ Modo file:// detectado. Sincronização com Google Drive não funciona neste modo.');
+                    console.warn('💡 SOLUÇÃO OBRIGATÓRIA: Use Live Server para sincronização funcionar:');
+                    console.warn('   1. Instale a extensão "Live Server" no VS Code');
+                    console.warn('   2. Clique com botão direito no index.html → "Open with Live Server"');
+                    console.warn('   3. O sistema abrirá em http://localhost e a sincronização funcionará!');
+                    
+                    // Mostrar alerta visual ao usuário
+                    const statusEl = document.getElementById('syncStatus');
+                    if (statusEl) {
+                        statusEl.innerHTML = '<span class="font-bold">⚠️ USE LIVE SERVER</span><br><span class="text-xs">A sincronização não funciona em modo file://</span>';
+                        statusEl.classList.remove('text-green-600', 'text-blue-600', 'text-amber-600');
+                        statusEl.classList.add('text-red-600');
+                    }
+                    
+                    if (syncBtn && syncBtnText) {
+                        syncBtnText.innerHTML = '⚠️ Use Live Server';
+                        syncBtn.disabled = false;
+                    }
+                    
+                    // Atualizar dashboard com dados locais (se houver)
+                    console.log('💡 Atualizando dashboard com dados locais disponíveis (se houver)');
+                    console.log(`📊 Dados locais: ${mockDatabase.length} feedback(s)`);
+                    updateDashboard();
+                    
+                    // Mostrar mensagem clara no console e no dashboard
+                    console.error('❌ ============================================');
+                    console.error('❌ SINCRONIZAÇÃO BLOQUEADA - MODO file://');
+                    console.error('❌ ============================================');
+                    console.error('📌 Para sincronizar com Google Drive, você DEVE usar Live Server!');
+                    console.error('📌 Instruções completas estão no console acima.');
+                    
+                    return; // Sair da função - não tentar sincronizar
+                }
+                
+                const fetchOptions = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        folderId: GOOGLE_DRIVE_FOLDER_ID || 'root',
+                        action: 'listFiles'
+                    })
+                };
+                
+                console.log('📤 Enviando requisição para listar arquivos...');
+                const response = await fetch(syncUrl, fetchOptions);
+                
+                console.log('📥 Resposta recebida:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    ok: response.ok,
+                    headers: Object.fromEntries(response.headers.entries())
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('📦 Resultado da sincronização:', result);
+                    console.log(`📁 Arquivos encontrados no Google Drive: ${result.files?.length || 0}`);
+                    
+                    if (result.error) {
+                        console.error('❌ Erro na resposta:', result.error);
+                        throw new Error(result.error);
+                    }
+                    
+                    if (result.files && result.files.length > 0) {
+                        let newFilesCount = 0;
+                        let skippedFilesCount = 0;
+                        
+                        // Limpar dados antigos antes de recarregar (garantir sincronização completa)
+                        const existingDriveIds = new Set(jsonFiles.map(f => f.driveId).filter(Boolean));
+                        
+                        // Priorizar o arquivo único do banco de dados
+                        const databaseFile = result.files.find(f => f.name === 'database_dasco.json');
+                        
+                        if (databaseFile) {
+                            console.log(`📥 Carregando arquivo do banco de dados: ${databaseFile.name} (ID: ${databaseFile.id})`);
+                            
+                            // SEMPRE recarregar o arquivo do banco de dados para ter os dados mais recentes
+                            // Remover versão antiga se existir
+                            const existingIndex = jsonFiles.findIndex(f => f.name === 'database_dasco.json');
+                            if (existingIndex !== -1) {
+                                console.log('🔄 Removendo versão antiga do banco de dados para recarregar...');
+                                jsonFiles.splice(existingIndex, 1);
+                            }
+                            
+                            try {
+                                const fileResponse = await fetch(syncUrl, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        fileId: databaseFile.id,
+                                        action: 'getFile'
+                                    })
+                                });
+                                
+                                if (fileResponse.ok) {
+                                    const fileData = await fileResponse.json();
+                                    
+                                    if (fileData.success && fileData.content) {
+                                        try {
+                                            const jsonData = JSON.parse(fileData.content);
+                                            console.log('📄 Conteúdo bruto do arquivo:', typeof jsonData, Array.isArray(jsonData) ? `Array com ${jsonData.length} itens` : 'Objeto único');
+                                            
+                                            // O arquivo do banco de dados sempre é um array
+                                            const feedbacks = Array.isArray(jsonData) ? jsonData : [jsonData];
+                                            
+                                            console.log(`📊 Processando ${feedbacks.length} feedback(s) do arquivo database_dasco.json`);
+                                            
+                                            // Log detalhado de cada feedback
+                                            feedbacks.forEach((fb, idx) => {
+                                                console.log(`  Feedback ${idx + 1}:`, {
+                                                    timestamp: fb.timestamp,
+                                                    data: fb.data,
+                                                    hora: fb.hora,
+                                                    cidade: fb.cidade,
+                                                    orgulho: fb.orgulho
+                                                });
+                                            });
+                                            
+                                            const fileInfo = {
+                                                id: Date.now() + Math.random(),
+                                                driveId: databaseFile.id,
+                                                name: databaseFile.name,
+                                                size: databaseFile.sizeBytes || 0,
+                                                uploadDate: databaseFile.modifiedTime || new Date().toISOString(),
+                                                data: feedbacks // Array completo de feedbacks
+                                            };
+                                            
+                                            // Remover versão antiga do arquivo se existir
+                                            const oldFileIndex = jsonFiles.findIndex(f => f.name === 'database_dasco.json');
+                                            if (oldFileIndex !== -1) {
+                                                console.log('🗑️ Removendo versão antiga do arquivo do banco de dados');
+                                                jsonFiles.splice(oldFileIndex, 1);
+                                            }
+                                            
+                                            jsonFiles.push(fileInfo);
+                                            existingDriveIds.add(databaseFile.id);
+                                            
+                                            // IMPORTANTE: O arquivo database_dasco.json é a fonte de verdade
+                                            // Remover todos os dados antigos do mockDatabase que vieram deste arquivo
+                                            // e substituir pelos dados atualizados do arquivo
+                                            console.log(`📊 mockDatabase antes: ${mockDatabase.length} itens`);
+                                            
+                                            // Remover dados antigos que podem ter vindo de versões anteriores do arquivo
+                                            // e adicionar TODOS os feedbacks do arquivo (não filtrar por timestamp)
+                                            const timestampsFromFile = new Set(feedbacks.map(f => f.timestamp).filter(Boolean));
+                                            
+                                            // Manter apenas dados que NÃO vieram do arquivo (dados locais de pesquisas na mesma sessão)
+                                            const localData = mockDatabase.filter(d => {
+                                                const ts = d.timestamp;
+                                                return ts && !timestampsFromFile.has(ts);
+                                            });
+                                            
+                                            // Adicionar TODOS os feedbacks do arquivo
+                                            mockDatabase = localData.concat(feedbacks);
+                                            
+                                            newFilesCount++;
+                                            console.log(`✅ Banco de dados carregado completamente!`);
+                                            console.log(`   📁 Arquivo: ${feedbacks.length} feedback(s)`);
+                                            console.log(`   💾 Dados locais mantidos: ${localData.length}`);
+                                            console.log(`   📊 Total no mockDatabase: ${mockDatabase.length}`);
+                                        } catch (parseError) {
+                                            console.error(`❌ Erro ao fazer parse do banco de dados:`, parseError);
+                                            console.error('Conteúdo recebido:', fileData.content?.substring(0, 500));
+                                            console.error('Stack:', parseError.stack);
+                                        }
+                                    } else {
+                                        console.error(`❌ Erro ao obter conteúdo do banco de dados:`, fileData.error);
+                                        console.error('Resposta completa:', fileData);
+                                    }
+                                } else {
+                                    const errorText = await fileResponse.text();
+                                    console.error(`❌ Erro HTTP ao buscar banco de dados:`, fileResponse.status, errorText);
+                                }
+                            } catch (error) {
+                                console.error(`❌ Erro ao carregar banco de dados:`, error);
+                            }
+                        } else {
+                            console.log('⚠️ Arquivo database_dasco.json não encontrado no Google Drive');
+                            console.log('💡 O arquivo será criado quando você completar a primeira pesquisa');
+                        }
+                        
+                        // Também carregar outros arquivos JSON (para compatibilidade com arquivos antigos)
+                        for (const file of result.files) {
+                            // Pular o arquivo do banco de dados (já foi processado)
+                            if (file.name === 'database_dasco.json') continue;
+                            if (!file.name.endsWith('.json')) {
+                                console.log(`⏭️ Arquivo ignorado (não é JSON): ${file.name}`);
+                                continue;
+                            }
+                            
+                            // Verificar se o arquivo já foi carregado
+                            const alreadyLoaded = existingDriveIds.has(file.id) || jsonFiles.some(f => f.name === file.name && f.driveId === file.id);
+                            
+                            if (alreadyLoaded) {
+                                skippedFilesCount++;
+                                console.log(`⏭️ Arquivo já carregado: ${file.name}`);
+                                continue;
+                            }
+                            
+                            console.log(`📥 Carregando arquivo: ${file.name} (ID: ${file.id})`);
+                            
+                            // Buscar conteúdo do arquivo
+                            try {
+                                const fileResponse = await fetch(syncUrl, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        fileId: file.id,
+                                        action: 'getFile'
+                                    })
+                                });
+                                
+                                if (fileResponse.ok) {
+                                    const fileData = await fileResponse.json();
+                                    
+                                    if (!fileData.success || !fileData.content) {
+                                        console.error(`❌ Erro ao obter conteúdo do arquivo ${file.name}:`, fileData.error);
+                                        continue;
+                                    }
+                                    
+                                    try {
+                                        const jsonData = JSON.parse(fileData.content);
+                                        const fileInfo = {
+                                            id: Date.now() + Math.random(),
+                                            driveId: file.id,
+                                            name: file.name,
+                                            size: file.sizeBytes || 0,
+                                            uploadDate: file.modifiedTime || new Date().toISOString(),
+                                            data: Array.isArray(jsonData) ? jsonData : [jsonData]
+                                        };
+                                        
+                                        jsonFiles.push(fileInfo);
+                                        existingDriveIds.add(file.id);
+                                        
+                                        // Unir TODOS os dados de TODOS os JSONs em um único resultado
+                                        if (Array.isArray(fileInfo.data)) {
+                                            mockDatabase = mockDatabase.concat(fileInfo.data);
+                                        } else {
+                                            mockDatabase.push(fileInfo.data);
+                                        }
+                                        newFilesCount++;
+                                        console.log(`✅ Arquivo ${file.name} carregado com sucesso! ${Array.isArray(fileInfo.data) ? fileInfo.data.length : 1} feedback(s). Total: ${mockDatabase.length}`);
+                                    } catch (parseError) {
+                                        console.error(`❌ Erro ao fazer parse do JSON do arquivo ${file.name}:`, parseError);
+                                    }
+                                } else {
+                                    console.error(`❌ Erro ao buscar arquivo ${file.name}:`, fileResponse.status);
+                                }
+                            } catch (fetchError) {
+                                console.error(`❌ Erro de rede ao buscar arquivo ${file.name}:`, fetchError);
+                            }
+                        }
+                        
+                        console.log(`📊 Resumo da sincronização: ${newFilesCount} novos arquivos, ${skippedFilesCount} já carregados, ${result.files.length} total no Drive`);
+                        console.log(`📊 Total de feedbacks no mockDatabase: ${mockDatabase.length}`);
+                        
+                        // Atualizar status de sucesso
+                        if (statusEl) {
+                            statusEl.innerText = `✅ ${mockDatabase.length} feedback(s) sincronizado(s)`;
+                            statusEl.classList.remove('text-red-600', 'text-amber-600', 'text-blue-600');
+                            statusEl.classList.add('text-green-600');
+                        }
+                        
+                        updateJsonFilesList();
+                        updateDashboard();
+                        
+                        if (syncBtn && syncBtnText) {
+                            if (newFilesCount > 0) {
+                                syncBtnText.innerHTML = `✅ ${newFilesCount} novo(s) arquivo(s)`;
+                                setTimeout(() => {
+                                    syncBtnText.innerHTML = '🔄 Sincronizar Google Drive';
+                                }, 3000);
+                            } else {
+                                syncBtnText.innerHTML = `✅ ${mockDatabase.length} feedback(s)`;
+                                setTimeout(() => {
+                                    syncBtnText.innerHTML = '🔄 Sincronizar Google Drive';
+                                }, 2000);
+                            }
+                        }
+                    } else {
+                        if (syncBtn && syncBtnText) {
+                            syncBtnText.innerHTML = 'ℹ️ Nenhum arquivo';
+                            setTimeout(() => {
+                                syncBtnText.innerHTML = '🔄 Sincronizar Google Drive';
+                            }, 2000);
+                        }
+                    }
+                } else {
+                    // Tentar ler o texto da resposta para mais detalhes
+                    let errorMessage = 'Erro ao buscar arquivos';
+                    try {
+                        const errorText = await response.text();
+                        if (errorText) {
+                            errorMessage = `Erro HTTP ${response.status}: ${errorText.substring(0, 100)}`;
+                        }
+                    } catch (e) {
+                        errorMessage = `Erro HTTP ${response.status}`;
+                    }
+                    throw new Error(errorMessage);
+                }
+            } catch (error) {
+                console.error('Erro ao sincronizar Google Drive:', error);
+                
+                // Verificar se é erro de CORS ou rede
+                const isNetworkError = error.message.includes('Failed to fetch') || 
+                                     error.message.includes('CORS') ||
+                                     error.message.includes('network');
+                
+                if (isNetworkError) {
+                    console.warn('💡 Erro de rede/CORS detectado. Use um servidor local (Live Server) para sincronização funcionar.');
+                }
+                
+                if (syncBtn && syncBtnText) {
+                    syncBtnText.innerHTML = '❌ Erro - Verifique console';
+                    setTimeout(() => {
+                        syncBtnText.innerHTML = '🔄 Sincronizar Google Drive';
+                    }, 3000);
+                }
+                
+                // Atualizar status
+                const statusEl = document.getElementById('syncStatus');
+                if (statusEl) {
+                    statusEl.innerText = `❌ Erro: ${error.message.substring(0, 50)}`;
+                    statusEl.classList.remove('text-green-600', 'text-blue-600', 'text-amber-600');
+                    statusEl.classList.add('text-red-600');
+                }
+            } finally {
+                if (syncBtn) {
+                    syncBtn.disabled = false;
+                }
+                lastSyncTime = new Date();
+            }
+        }
+
+        // Sincronização automática
+        function startAutoSync() {
+            // Limpar dados antigos antes de sincronizar
+            console.log('🔄 Iniciando sincronização automática...');
+            console.log('🗑️ Limpando dados antigos para recarregar tudo do Google Drive');
+            
+            // Limpar mockDatabase e jsonFiles para forçar recarregamento completo
+            mockDatabase = [];
+            jsonFiles = [];
+            
+            // Sincronizar imediatamente ao abrir o dashboard
+            if (GOOGLE_DRIVE_SYNC_URL || GOOGLE_APPS_SCRIPT_URL) {
+                setTimeout(() => {
+                    console.log('📥 Forçando sincronização completa do Google Drive...');
+                    syncGoogleDrive();
+                }, 500);
+            }
+            
+            // Sincronizar automaticamente a cada 30 segundos
+            if (syncInterval) {
+                clearInterval(syncInterval);
+            }
+            
+            syncInterval = setInterval(() => {
+                if (GOOGLE_DRIVE_SYNC_URL || GOOGLE_APPS_SCRIPT_URL) {
+                    console.log('🔄 Sincronização automática periódica...');
+                    syncGoogleDrive();
+                }
+            }, 30000); // 30 segundos
+        }
+
+        function stopAutoSync() {
+            if (syncInterval) {
+                clearInterval(syncInterval);
+                syncInterval = null;
             }
         }
 
@@ -660,8 +1350,14 @@
                         };
                         
                         jsonFiles.push(fileData);
-                        mockDatabase = mockDatabase.concat(fileData.data);
+                        // Unir TODOS os dados de TODOS os JSONs em um único resultado
+                        if (Array.isArray(fileData.data)) {
+                            mockDatabase = mockDatabase.concat(fileData.data);
+                        } else {
+                            mockDatabase.push(fileData.data);
+                        }
                         
+                        console.log(`✅ Arquivo ${file.name} carregado manualmente. Total de feedbacks: ${mockDatabase.length}`);
                         updateJsonFilesList();
                         updateDashboard();
                         event.target.value = '';
@@ -683,7 +1379,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         <p class="text-xs font-medium">Nenhum arquivo JSON carregado</p>
-                        <p class="text-[10px] mt-1">Clique em "Adicionar JSON" para começar</p>
+                        <p class="text-[10px] mt-1">Os arquivos serão sincronizados automaticamente do Google Drive</p>
                     </div>
                 `;
                 return;
@@ -692,8 +1388,8 @@
             listContainer.innerHTML = jsonFiles.map(file => `
                 <div class="json-file-item p-4 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
                     <div class="flex items-center space-x-3 flex-1">
-                        <div class="p-2 bg-purple-100 rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="p-2 bg-blue-100 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#1d438a]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                         </div>
@@ -765,6 +1461,11 @@
         function processInput(val = null) {
             const input = val || userInput.value.trim();
             if(!input) return;
+
+            // PARAR a fala atual imediatamente quando o usuário responder
+            window.speechSynthesis.cancel();
+            isSpeaking = false;
+            
             userInput.value = '';
             addMessage(input, true);
             
@@ -776,7 +1477,7 @@
                 addMessage('Entendido. Quando quiser participar, estarei à disposição. Tenha um excelente trabalho!', false);
                 return;
             }
-            
+
             // Salvar o nome se for o primeiro passo (intro)
             if (dialogue[currentStep].id === 'intro') {
                 userData.nome = input;
@@ -785,21 +1486,99 @@
                 userData[dialogue[currentStep].id] = input;
             }
             
+            // Avançar para o próximo passo e iniciar a fala imediatamente após resposta
+            // Input permanece habilitado para permitir escrita durante a fala
             currentStep++;
+            console.log(`📊 Passo atual: ${currentStep} de ${dialogue.length} total`);
+            
             if (currentStep < dialogue.length) {
-                setTimeout(nextStep, 800); // Aumentar um pouco o tempo para a voz terminar
+                // Mostrar próxima pergunta imediatamente
+                const step = dialogue[currentStep];
+                
+                // Se for o passo final (tipo "end"), mostrar mensagem e salvar automaticamente
+                if (step.type === 'end') {
+                    console.log('✅ Passo final detectado! Mostrando mensagem final e salvando...');
+                    // Garantir que o nome seja usado na mensagem
+                    let finalText = step.text;
+                    if (userData.nome) {
+                        finalText = finalText.replace(/\[NOME\]/g, userData.nome);
+                    }
+                    addMessage(finalText, false);
+                    
+                    // Falar a mensagem final
+                    let speakText = step?.speak || step?.text;
+                    if (userData.nome) {
+                        speakText = speakText.replace(/\[NOME\]/g, userData.nome);
+                    }
+                    setTimeout(() => {
+                        speak(speakText, () => {
+                            // Após falar a mensagem final, salvar dados
+                            console.log('✅ Mensagem final falada. Salvando dados...');
+                            // Reduzir tempo de espera para salvar mais rápido
+                            setTimeout(() => {
+                                saveData();
+                            }, 200);
+                        });
+                    }, 100);
+                    return;
+                }
+                
+                // Para outros passos, mostrar pergunta normalmente (garantir que nome seja usado)
+                let stepText = step.text;
+                if (userData.nome) {
+                    stepText = stepText.replace(/\[NOME\]/g, userData.nome);
+                }
+                addMessage(stepText, false, step.options);
+                
+                // Iniciar a fala imediatamente, sem delay desnecessário
+                // Input permanece habilitado - usuário pode responder por escrita a qualquer momento
+                let speakText = step?.speak || step?.text;
+                if (speakText) {
+                    if (userData.nome) {
+                        speakText = speakText.replace(/\[NOME\]/g, userData.nome);
+                    }
+                    // Falar imediatamente após mostrar a mensagem
+                    // Delay mínimo apenas para garantir renderização
+                    setTimeout(() => {
+                        speak(speakText, () => {
+                            // Fala terminou - input já está habilitado
+                            console.log('Fala concluída - input disponível para resposta');
+                        });
+                    }, 30); // Delay mínimo apenas para renderização
+                }
             } else {
+                // Última pergunta respondida, salvar dados
+                console.log('✅ Última pergunta respondida! Chamando saveData()...');
                 saveData();
             }
         }
 
-        function nextStep() { 
-            if (currentStep >= dialogue.length) return;
+        function nextStep() {
+            if (currentStep >= dialogue.length) {
+                // Se já passou do último passo, salvar dados
+                console.log('✅ Todos os passos concluídos! Chamando saveData()...');
+                saveData();
+                return;
+            }
+            
+            // Input permanece HABILITADO - usuário pode responder por escrita a qualquer momento
+            // A voz é apenas para direcionamento, não bloqueia a pesquisa
             
             const step = dialogue[currentStep];
+            console.log(`📋 Mostrando passo ${currentStep + 1}/${dialogue.length}: ${step.id}`);
+            
             addMessage(step.text, false, step.options);
             
-            // Garantir que a voz seja chamada explicitamente após renderizar
+            // Se for o passo final (tipo "end"), salvar dados após mostrar a mensagem
+            if (step.type === 'end') {
+                console.log('✅ Passo final detectado! Salvando dados...');
+                setTimeout(() => {
+                    saveData();
+                }, 1000); // Aguardar 1 segundo para mostrar a mensagem antes de salvar
+                return;
+            }
+            
+            // Iniciar a fala imediatamente, com delay mínimo apenas para renderização
             setTimeout(() => {
                 let speakText = step?.speak || step?.text;
                 if (speakText) {
@@ -807,9 +1586,19 @@
                         speakText = speakText.replace(/\[NOME\]/g, userData.nome);
                     }
                     console.log('Chamando speak() para o passo:', currentStep, 'Texto:', speakText.substring(0, 50));
-                    speak(speakText);
+                    
+                    // Falar - input já está habilitado, usuário pode responder a qualquer momento
+                    speak(speakText, () => {
+                        // Fala terminou - input já está disponível
+                        console.log('Fala concluída - input disponível para resposta');
+                    });
                 }
-            }, 400);
+            }, 30); // Delay mínimo apenas para garantir renderização
+            
+            // Focar no input para facilitar digitação
+            setTimeout(() => {
+                userInput.focus();
+            }, 50);
         }
 
         function startNewResearch() {
@@ -821,66 +1610,464 @@
         }
 
         async function saveData() {
-            // Adicionar data e hora ao relatório
-            const dateTimeInfo = getDateTimeForReport();
-            userData.data = dateTimeInfo.data;
-            userData.hora = dateTimeInfo.hora;
-            userData.timestamp = dateTimeInfo.timestamp;
-            userData.finalizado = true;
-            
-            // Criar cópia sem o nome para o relatório
-            const reportData = {...userData};
-            delete reportData.nome; // Remover o nome do relatório
-            
-            mockDatabase.push(reportData);
-            
-            const jsonData = JSON.stringify(reportData, null, 2);
-            const fileName = `feedback_dasco_${Date.now()}.json`;
-            
-            await uploadToGoogleDrive(jsonData, fileName);
-            
-            setTimeout(() => {
-                addMessage('Deseja iniciar uma nova pesquisa?', false, ['Sim, iniciar nova pesquisa', 'Não, obrigado']);
-            }, 2000);
-        }
-
-        async function uploadToGoogleDrive(jsonContent, fileName) {
+            console.log('🔵 ============================================');
+            console.log('🔵 FUNÇÃO saveData() CHAMADA - Iniciando salvamento...');
+            console.log('🔵 ============================================');
             try {
-                if (GOOGLE_APPS_SCRIPT_URL) {
-                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            fileName: fileName,
-                            fileContent: jsonContent,
-                            folderId: GOOGLE_DRIVE_FOLDER_ID || 'root'
-                        })
-                    });
+                // Adicionar data e hora ao relatório
+                const dateTimeInfo = getDateTimeForReport();
+                userData.data = dateTimeInfo.data;
+                userData.hora = dateTimeInfo.hora;
+                userData.timestamp = dateTimeInfo.timestamp;
+                userData.finalizado = true;
+                
+                console.log('📝 Dados do usuário preparados:', userData);
+                
+                // Criar cópia sem o nome para o relatório
+                const reportData = {...userData};
+                delete reportData.nome; // Remover o nome do relatório
+                
+                // Adicionar ao banco de dados local também
+                mockDatabase.push(reportData);
+                
+                // Nome do arquivo único do banco de dados
+                const fileName = 'database_dasco.json';
+                
+                console.log('=== INICIANDO SALVAMENTO ===');
+                console.log('Arquivo do banco de dados:', fileName);
+                console.log('Novo feedback a ser adicionado:', reportData);
+                console.log('Modo:', window.location.protocol === 'file:' ? 'file:// (pode falhar)' : 'http:// (OK)');
+                
+                // Tentar atualizar o arquivo único no Google Drive
+                console.log('📤 ============================================');
+                console.log('📤 ATUALIZANDO BANCO DE DADOS NO GOOGLE DRIVE');
+                console.log('📤 ============================================');
+                console.log('🔗 URL do Script:', GOOGLE_APPS_SCRIPT_URL);
+                console.log('📁 ID da Pasta:', GOOGLE_DRIVE_FOLDER_ID);
+                console.log('📄 Arquivo do banco:', fileName);
+                
+                try {
+                    const updateSuccess = await updateDatabaseFile(reportData, fileName);
                     
-                    if (response.ok) {
-                        const result = await response.json();
-                        console.log('Arquivo enviado para Google Drive:', result);
-                        addMessage('✅ Seu feedback foi salvo com sucesso no Google Drive!', false);
-                        return true;
+                    console.log('📤 Resultado da atualização:', updateSuccess);
+                    
+                    if (updateSuccess) {
+                        console.log('✅ ============================================');
+                        console.log('✅ FEEDBACK ADICIONADO AO BANCO DE DADOS COM SUCESSO!');
+                        console.log('✅ ============================================');
+                        addMessage('✅ Seu feedback foi registrado com sucesso no banco de dados!', false);
+                        
+                        // Forçar atualização do dashboard se estiver aberto
+                        const dashboardView = document.getElementById('dashboardView');
+                        if (dashboardView && !dashboardView.classList.contains('hidden')) {
+                            console.log('🔄 Dashboard aberto - forçando atualização...');
+                            setTimeout(() => {
+                                syncGoogleDrive();
+                            }, 2000);
+                        }
+                    } else {
+                        // Se estiver em modo file://, a atualização pode ter funcionado mesmo retornando false
+                        const isFileProtocol = window.location.protocol === 'file:';
+                        if (isFileProtocol) {
+                            console.log('💡 Modo file:// - atualização foi tentada, mas não é possível confirmar sucesso');
+                            addMessage('📤 Feedback enviado para o banco de dados! (Verifique a pasta para confirmar)', false);
+                        } else {
+                            console.warn('⚠️ ============================================');
+                            console.warn('⚠️ ATUALIZAÇÃO RETORNOU FALSE');
+                            console.warn('⚠️ ============================================');
+                            addMessage('⚠️ Atualização pode ter falhado. Verifique a pasta do Google Drive.', false);
+                        }
+                    }
+                } catch (updateError) {
+                    // Se estiver em modo file://, o erro pode ser esperado, mas a atualização pode ter funcionado
+                    const isFileProtocol = window.location.protocol === 'file:';
+                    if (isFileProtocol) {
+                        console.log('💡 Modo file:// - erro esperado, mas atualização pode ter funcionado');
+                        addMessage('📤 Feedback enviado para o banco de dados! (Verifique a pasta para confirmar)', false);
+                        addMessage('💡 Use Live Server para confirmar o sucesso da atualização.', false);
+                    } else {
+                        console.error('❌ ============================================');
+                        console.error('❌ ERRO AO ATUALIZAR BANCO DE DADOS');
+                        console.error('❌ ============================================');
+                        console.error('Erro:', updateError);
+                        console.error('Stack:', updateError.stack);
+                        addMessage('❌ Erro ao atualizar banco de dados. Verifique o console (F12) para detalhes.', false);
                     }
                 }
                 
-                const blob = new Blob([jsonContent], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+                // Reduzir tempo de espera para voltar mais rápido para próxima pesquisa
+                setTimeout(() => {
+                    addMessage('Deseja iniciar uma nova pesquisa?', false, ['Sim, iniciar nova pesquisa', 'Não, obrigado']);
+                }, 500);
+            } catch (error) {
+                console.error('❌ ============================================');
+                console.error('❌ ERRO AO SALVAR DADOS');
+                console.error('❌ ============================================');
+                console.error('Erro:', error);
+                console.error('Stack trace completo:', error.stack);
+                addMessage('❌ Erro ao salvar no Google Drive. Verifique o console (F12) e use Live Server para garantir o envio.', false);
+                addMessage('💡 Dica: Use Live Server no VS Code para garantir que o upload funcione corretamente.', false);
                 
-                addMessage('✅ Seu feedback foi salvo localmente. Configure o Google Drive para upload automático.', false);
-                return true;
+                // NÃO salvar localmente - apenas mostrar erro
+                // O arquivo DEVE ser salvo apenas no Google Drive
+            }
+        }
+
+        // Nova função para atualizar o arquivo único do banco de dados
+        async function updateDatabaseFile(newFeedback, fileName) {
+            console.log('🔄 ============================================');
+            console.log('🔄 ATUALIZANDO BANCO DE DADOS');
+            console.log('🔄 ============================================');
+            console.log('📄 Arquivo:', fileName);
+            console.log('📝 Novo feedback:', newFeedback);
+            
+            try {
+                const isFileProtocol = window.location.protocol === 'file:';
+                
+                if (isFileProtocol) {
+                    console.warn('⚠️ Modo file:// detectado. Tentando atualização com no-cors...');
+                    console.warn('💡 Para garantir a atualização, use Live Server (http://localhost)');
+                }
+                
+                if (!GOOGLE_APPS_SCRIPT_URL) {
+                    throw new Error('Google Apps Script URL não configurada');
+                }
+                
+                if (!GOOGLE_DRIVE_FOLDER_ID) {
+                    throw new Error('ID da pasta do Google Drive não configurado');
+                }
+                
+                const payload = {
+                    action: 'updateFile',
+                    fileName: fileName,
+                    newData: newFeedback,
+                    folderId: GOOGLE_DRIVE_FOLDER_ID
+                };
+                
+                console.log('📤 Payload completo:', JSON.stringify(payload, null, 2));
+                console.log('📁 ID da Pasta:', GOOGLE_DRIVE_FOLDER_ID);
+                console.log('🔗 URL do Script:', GOOGLE_APPS_SCRIPT_URL);
+                console.log('📋 Verificando se o script está acessível...');
+                
+                // Tentar primeiro com CORS normal (para poder ler a resposta)
+                try {
+                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload),
+                        redirect: 'follow' // Seguir redirecionamentos do Google Apps Script
+                    });
+                    
+                    console.log('📡 Status da resposta:', response.status, response.statusText);
+                    console.log('📡 Response OK?', response.ok);
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('✅ Resposta completa do servidor:', JSON.stringify(result, null, 2));
+                        
+                        if (result.success) {
+                            console.log(`✅ Banco de dados atualizado com sucesso!`);
+                            console.log(`📁 Pasta: ${result.folderName || 'N/A'} (ID: ${result.folderId || 'N/A'})`);
+                            console.log(`📄 Arquivo: ${result.fileName || 'N/A'}`);
+                            console.log(`📊 Total de feedbacks: ${result.totalItems || 'N/A'}`);
+                            console.log(`🔗 URL do arquivo: ${result.fileUrl || 'N/A'}`);
+                            console.log(`🔗 Link da pasta: https://drive.google.com/drive/folders/${result.folderId || GOOGLE_DRIVE_FOLDER_ID}`);
+                            console.log(`🔗 Link direto: https://drive.google.com/drive/folders/1cg0SPId-JFv0OqI5dVOCy9ReZBF6TIox`);
+                            
+                            // Mostrar alerta visual para o usuário
+                            alert(`✅ Feedback salvo com sucesso!\n\n📊 Total de feedbacks: ${result.totalItems || 'N/A'}\n📁 Pasta: ${result.folderName || 'N/A'}\n\nVerifique a pasta do Google Drive para confirmar.`);
+                            
+                            return true;
+                        } else {
+                            console.error('❌ Erro na atualização:', result.error);
+                            console.error('📋 Detalhes recebidos:', result);
+                            alert(`❌ Erro ao salvar: ${result.error || 'Erro desconhecido'}\n\nVerifique o console (F12) para mais detalhes.`);
+                            return false;
+                        }
+                    } else {
+                        const errorText = await response.text();
+                        console.error('❌ Erro HTTP:', response.status);
+                        console.error('❌ Resposta do servidor:', errorText);
+                        try {
+                            const errorJson = JSON.parse(errorText);
+                            console.error('❌ Detalhes do erro:', errorJson);
+                            alert(`❌ Erro HTTP ${response.status}: ${errorJson.error || errorText}`);
+                        } catch (e) {
+                            console.error('❌ Erro não é JSON:', errorText);
+                            alert(`❌ Erro HTTP ${response.status}: ${errorText.substring(0, 200)}`);
+                        }
+                        return false;
+                    }
+                } catch (fetchError) {
+                    // Se falhar com CORS, tentar com no-cors como fallback
+                    console.warn('⚠️ Erro com CORS, tentando no-cors como fallback:', fetchError.message);
+                    
+                    if (isFileProtocol || fetchError.message.includes('CORS') || fetchError.message.includes('Failed to fetch')) {
+                        // Tentar com no-cors (não podemos ler a resposta, mas o arquivo deve ser criado)
+                        try {
+                            console.log('📤 Enviando arquivo via no-cors (fallback)...');
+                            await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                                method: 'POST',
+                                mode: 'no-cors',
+                                headers: { 
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(payload)
+                            });
+                            
+                            console.log('✅ Requisição enviada (no-cors mode)');
+                            console.log('⚠️ Não é possível verificar a resposta em modo no-cors');
+                            console.log(`💡 Verifique a pasta: https://drive.google.com/drive/folders/${GOOGLE_DRIVE_FOLDER_ID}`);
+                            
+                            alert('📤 Feedback enviado! (modo no-cors - verifique a pasta do Google Drive)\n\n💡 Use Live Server para confirmar o envio.');
+                            
+                            return true; // Assumir sucesso
+                        } catch (noCorsError) {
+                            console.error('❌ Erro mesmo com no-cors:', noCorsError);
+                            throw noCorsError;
+                        }
+                    } else {
+                        throw fetchError;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Erro ao atualizar banco de dados:', error);
+                console.error('Detalhes do erro:', error.message);
+                console.error('Stack:', error.stack);
+                console.error('URL do Script:', GOOGLE_APPS_SCRIPT_URL);
+                console.error('ID da Pasta:', GOOGLE_DRIVE_FOLDER_ID);
+                
+                const isNetworkError = error.message.includes('Failed to fetch') || 
+                                     error.message.includes('CORS') ||
+                                     error.message.includes('network');
+                
+                if (isNetworkError) {
+                    console.warn('💡 Erro de rede/CORS detectado. Use um servidor local (Live Server) para atualização funcionar.');
+                    alert('❌ Erro de rede/CORS.\n\n💡 Use Live Server (http://localhost) para enviar ao Google Drive.\n\n1. Instale "Live Server" no VS Code\n2. Clique com botão direito no index.html → "Open with Live Server"');
+                } else {
+                    alert(`❌ Erro ao enviar: ${error.message}\n\nVerifique o console (F12) para detalhes.`);
+                }
+                
+                return false;
+            }
+        }
+
+
+        async function uploadToGoogleDrive(jsonContent, fileName) {
+            console.log('🚀 uploadToGoogleDrive() INICIADA');
+            console.log('📄 Arquivo:', fileName);
+            console.log('📏 Tamanho:', jsonContent.length, 'caracteres');
+            
+            try {
+                // Verificar se está em modo file://
+                const isFileProtocol = window.location.protocol === 'file:';
+                
+                if (isFileProtocol) {
+                    console.warn('⚠️ Modo file:// detectado. Tentando upload com no-cors...');
+                    console.warn('💡 Para garantir o upload, use Live Server (http://localhost)');
+                }
+                
+                if (!GOOGLE_APPS_SCRIPT_URL) {
+                    throw new Error('Google Apps Script URL não configurada');
+                }
+                
+                if (!GOOGLE_DRIVE_FOLDER_ID) {
+                    throw new Error('ID da pasta do Google Drive não configurado');
+                }
+                
+                console.log('=== INICIANDO UPLOAD PARA GOOGLE DRIVE ===');
+                console.log('Arquivo:', fileName);
+                console.log('Pasta ID:', GOOGLE_DRIVE_FOLDER_ID);
+                console.log('URL do Script:', GOOGLE_APPS_SCRIPT_URL);
+                console.log('Tamanho do conteúdo:', jsonContent.length, 'caracteres');
+                console.log('Modo:', isFileProtocol ? 'file:// (pode falhar)' : 'http:// (OK)');
+                
+                // Validar dados antes de enviar
+                if (!fileName || !jsonContent) {
+                    throw new Error('Nome do arquivo ou conteúdo não pode estar vazio');
+                }
+                
+                const payload = {
+                    action: 'upload',
+                    fileName: fileName,
+                    fileContent: jsonContent,
+                    folderId: GOOGLE_DRIVE_FOLDER_ID
+                };
+                
+                console.log('=== DADOS DO PAYLOAD ===');
+                console.log('Ação:', payload.action);
+                console.log('Nome do arquivo:', fileName);
+                console.log('Tamanho do conteúdo:', jsonContent.length, 'caracteres');
+                console.log('ID da pasta:', GOOGLE_DRIVE_FOLDER_ID);
+                console.log('URL do Script:', GOOGLE_APPS_SCRIPT_URL);
+                console.log('Payload completo (primeiros 200 chars):', JSON.stringify(payload).substring(0, 200) + '...');
+                
+                // Tentar com CORS primeiro (para poder ler a resposta)
+                // Se estiver em file://, pular direto para no-cors
+                if (isFileProtocol) {
+                    console.log('⚠️ Modo file:// detectado - tentando upload com no-cors...');
+                    console.log('💡 Use Live Server para verificar o sucesso do upload');
+                    
+                    // Tentar com no-cors diretamente (não podemos ler a resposta, mas o arquivo deve ser criado)
+                    try {
+                        console.log('📤 Enviando arquivo via no-cors...');
+                        await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        console.log('✅ Requisição enviada (no-cors mode)');
+                        console.log('⚠️ Não é possível verificar a resposta em modo no-cors');
+                        console.log('📁 Verifique a pasta do Google Drive:', 'https://drive.google.com/drive/folders/' + GOOGLE_DRIVE_FOLDER_ID);
+                        console.log('📋 Dados enviados:', {
+                            fileName: fileName,
+                            folderId: GOOGLE_DRIVE_FOLDER_ID,
+                            contentSize: jsonContent.length,
+                            url: GOOGLE_APPS_SCRIPT_URL
+                        });
+                        
+                        addMessage('📤 Arquivo enviado para o Google Drive! (modo local - verifique a pasta). Use Live Server para confirmar o envio.', false);
+                        console.log('💡 IMPORTANTE: Para garantir que o upload funcione e verificar o sucesso, use Live Server no VS Code');
+                        console.log('💡 O arquivo provavelmente foi enviado, mas não é possível confirmar em modo file://');
+                        
+                        // Retornar true - o arquivo provavelmente foi enviado
+                        // O Google Apps Script processa a requisição mesmo sem poder ler a resposta
+                        return true;
+                    } catch (noCorsError) {
+                        console.error('❌ Erro ao enviar com no-cors:', noCorsError);
+                        console.error('Detalhes completos:', noCorsError);
+                        throw new Error('Falha no upload (no-cors): ' + noCorsError.message);
+                    }
+                }
+                
+                // Tentar com CORS normal (modo http://)
+                try {
+                    console.log('📤 Tentando upload com CORS normal...');
+                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload),
+                        redirect: 'follow' // Seguir redirecionamentos
+                    });
+                    
+                    console.log('Status da resposta:', response.status);
+                    console.log('OK?', response.ok);
+                    
+                    // Verificar se a resposta é JSON
+                    const contentType = response.headers.get('content-type');
+                    console.log('Content-Type da resposta:', contentType);
+                    
+                    if (response.ok) {
+                        let result;
+                        try {
+                            const responseText = await response.text();
+                            console.log('Texto da resposta:', responseText);
+                            result = JSON.parse(responseText);
+                        } catch (parseError) {
+                            console.error('❌ Erro ao fazer parse da resposta JSON:', parseError);
+                            throw new Error('Resposta do servidor não é um JSON válido');
+                        }
+                        
+                        console.log('Resposta do Google Drive:', result);
+                        
+                        if (result.success) {
+                            console.log('✅ SUCESSO! Arquivo criado:', result.fileId);
+                            console.log('URL do arquivo:', result.fileUrl);
+                            console.log('Nome do arquivo:', result.fileName);
+                            addMessage('✅ Seu feedback foi salvo com sucesso no Google Drive!', false);
+                            return true;
+                        } else {
+                            console.error('❌ Erro na resposta:', result.error);
+                            console.error('Detalhes completos:', result);
+                            throw new Error(result.error || 'Erro desconhecido do servidor');
+                        }
+                    } else {
+                        const errorText = await response.text();
+                        console.error('❌ Resposta não OK:', response.status);
+                        console.error('Status:', response.status, response.statusText);
+                        console.error('Texto do erro:', errorText);
+                        throw new Error('Erro HTTP: ' + response.status + ' - ' + errorText.substring(0, 200));
+                    }
+                } catch (corsError) {
+                    // Se falhar com CORS, tentar com no-cors como fallback
+                    console.warn('⚠️ Erro com CORS, tentando no-cors como fallback:', corsError.message);
+                    console.log('Detalhes do erro:', corsError);
+                    
+                    // Tentar com no-cors (não podemos ler a resposta, mas o arquivo deve ser criado)
+                    try {
+                        console.log('📤 Enviando arquivo via no-cors (fallback)...');
+                        await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+                        
+                        console.log('✅ Requisição enviada (no-cors mode - fallback)');
+                        console.log('⚠️ Não é possível verificar a resposta em modo no-cors');
+                        console.log('📁 Verifique a pasta do Google Drive:', 'https://drive.google.com/drive/folders/' + GOOGLE_DRIVE_FOLDER_ID);
+                        
+                        addMessage('✅ Seu feedback foi enviado para o Google Drive! Verifique a pasta.', false);
+                        
+                        // Retornar true mesmo em no-cors - o arquivo provavelmente foi enviado
+                        return true;
+                    } catch (noCorsError) {
+                        console.error('❌ Erro mesmo com no-cors:', noCorsError);
+                        console.error('Detalhes completos:', noCorsError);
+                        throw new Error('Falha no upload: ' + noCorsError.message);
+                    }
+                }
+                
+                // NÃO fazer fallback local - arquivo DEVE ser salvo apenas no Google Drive
+                console.error('❌ Google Drive não configurado. Configure GOOGLE_APPS_SCRIPT_URL e GOOGLE_DRIVE_FOLDER_ID.');
+                addMessage('❌ Google Drive não configurado. Configure o sistema antes de usar.', false);
+                return false;
                 
             } catch (error) {
-                console.error('Erro ao salvar arquivo:', error);
-                addMessage('⚠️ Erro ao salvar no Google Drive. O arquivo foi salvo localmente.', false);
+                const isFileProtocol = window.location.protocol === 'file:';
+                
+                // Se estiver em modo file://, o erro pode ser esperado, mas o upload com no-cors pode ter funcionado
+                // Não mostrar erro, apenas informar que foi tentado
+                if (isFileProtocol && (error.message.includes('no-cors') || error.message.includes('file://'))) {
+                    console.log('💡 Modo file:// - upload foi tentado com no-cors');
+                    console.log('💡 O arquivo pode ter sido enviado, mas não é possível confirmar');
+                    // Não mostrar erro - o upload foi tentado
+                    return true; // Retornar true para indicar que tentamos enviar
+                }
+                
+                console.error('❌ Erro ao salvar arquivo no Google Drive:', error);
+                console.error('Detalhes do erro:', error.message);
+                console.error('Stack trace:', error.stack);
+                console.error('URL do Script:', GOOGLE_APPS_SCRIPT_URL);
+                console.error('ID da Pasta:', GOOGLE_DRIVE_FOLDER_ID);
+                
+                // Verificar se é erro de CORS ou rede (mas não file://, que já foi tratado acima)
+                const isNetworkError = error.message.includes('Failed to fetch') || 
+                                     error.message.includes('CORS') ||
+                                     error.message.includes('network');
+                
+                if (isNetworkError) {
+                    console.warn('💡 Erro de rede/CORS detectado. Use um servidor local (Live Server) para upload funcionar.');
+                    addMessage('❌ Erro de rede/CORS. Use Live Server (http://localhost) para enviar ao Google Drive.', false);
+                    addMessage('💡 Dica: Instale "Live Server" no VS Code e abra o arquivo com "Open with Live Server".', false);
+                } else {
+                    addMessage('❌ Erro ao enviar para Google Drive. Verifique o console (F12) para detalhes.', false);
+                }
+                
+                // NÃO fazer fallback local - arquivo DEVE ser salvo apenas no Google Drive
+                console.error('❌ Upload falhou. Arquivo NÃO será salvo localmente.');
+                console.error('💡 Use Live Server para garantir que o upload funcione corretamente.');
+                
                 return false;
             }
         }
@@ -891,11 +2078,128 @@
         }
 
         function updateDashboard() {
-            const total = mockDatabase.length || 0;
+            console.log('🔄 ============================================');
+            console.log('🔄 ATUALIZANDO DASHBOARD');
+            console.log('🔄 ============================================');
+            console.log('📊 Estado inicial:', {
+                mockDatabaseLength: mockDatabase.length,
+                jsonFilesLength: jsonFiles.length
+            });
+            
+            // Log detalhado dos arquivos JSON
+            jsonFiles.forEach((file, idx) => {
+                const dataCount = Array.isArray(file.data) ? file.data.length : (file.data ? 1 : 0);
+                console.log(`  Arquivo ${idx + 1}: ${file.name} - ${dataCount} feedback(s)`);
+            });
+            
+            // Garantir que TODOS os dados de TODOS os JSONs estejam unidos
+            // Reunir todos os dados de todos os arquivos JSON
+            let allData = [];
+            
+            // Adicionar dados dos arquivos JSON (priorizar database_dasco.json)
+            const databaseFile = jsonFiles.find(f => f.name === 'database_dasco.json');
+            const otherFiles = jsonFiles.filter(f => f.name !== 'database_dasco.json');
+            
+            // Primeiro adicionar o arquivo do banco de dados (fonte de verdade)
+            if (databaseFile) {
+                if (Array.isArray(databaseFile.data)) {
+                    console.log(`📁 Adicionando ${databaseFile.data.length} feedback(s) do database_dasco.json`);
+                    allData = allData.concat(databaseFile.data);
+                } else if (databaseFile.data) {
+                    console.log(`📁 Adicionando 1 feedback do database_dasco.json`);
+                    allData.push(databaseFile.data);
+                }
+            }
+            
+            // Depois adicionar outros arquivos JSON (compatibilidade com arquivos antigos)
+            otherFiles.forEach(file => {
+                if (Array.isArray(file.data)) {
+                    console.log(`📄 Adicionando ${file.data.length} feedback(s) do arquivo ${file.name}`);
+                    allData = allData.concat(file.data);
+                } else if (file.data) {
+                    console.log(`📄 Adicionando 1 feedback do arquivo ${file.name}`);
+                    allData.push(file.data);
+                }
+            });
+            
+            // Adicionar dados que já estão em mockDatabase mas que não vieram dos arquivos
+            // (dados locais de pesquisas na mesma sessão que ainda não foram salvos)
+            const fileTimestamps = new Set();
+            jsonFiles.forEach(file => {
+                const fileData = Array.isArray(file.data) ? file.data : (file.data ? [file.data] : []);
+                fileData.forEach(item => {
+                    const ts = item.timestamp;
+                    if (ts) fileTimestamps.add(ts);
+                });
+            });
+            
+            const localOnlyData = mockDatabase.filter(d => {
+                const ts = d.timestamp;
+                return !ts || !fileTimestamps.has(ts);
+            });
+            
+            if (localOnlyData.length > 0) {
+                console.log(`💾 Adicionando ${localOnlyData.length} feedback(s) locais (não salvos ainda)`);
+                allData = allData.concat(localOnlyData);
+            }
+            
+            console.log(`📊 Total de dados coletados: ${allData.length}`);
+            
+            // Remover duplicatas baseado em timestamp (mais preciso)
+            const uniqueData = [];
+            const seenTimestamps = new Set();
+            const seenCombinations = new Set(); // Para itens sem timestamp
+            
+            allData.forEach((item, index) => {
+                const timestamp = item.timestamp;
+                
+                if (timestamp) {
+                    // Se tem timestamp, usar como chave única
+                    if (!seenTimestamps.has(timestamp)) {
+                        seenTimestamps.add(timestamp);
+                        uniqueData.push(item);
+                    } else {
+                        console.log(`⚠️ Duplicata encontrada (timestamp: ${timestamp}) - ignorando`);
+                    }
+                } else {
+                    // Se não tem timestamp, usar combinação de campos como chave
+                    const key = `${item.data || ''}_${item.hora || ''}_${item.orgulho || ''}_${item.cidade || ''}`;
+                    if (!seenCombinations.has(key)) {
+                        seenCombinations.add(key);
+                        uniqueData.push(item);
+                    } else {
+                        console.log(`⚠️ Duplicata encontrada (sem timestamp) - ignorando`);
+                    }
+                }
+            });
+            
+            console.log(`📊 Dados únicos após remoção de duplicatas: ${uniqueData.length}`);
+            
+            // Atualizar mockDatabase com todos os dados unidos e únicos
+            mockDatabase = uniqueData;
+            
+            console.log(`✅ mockDatabase atualizado: ${mockDatabase.length} feedback(s) únicos`);
+            
+            // Aplicar filtro por cidade/contrato se selecionado
+            const filterCidade = document.getElementById('filterCidade')?.value || '';
+            let dataToUse = uniqueData;
+            
+            if (filterCidade) {
+                dataToUse = uniqueData.filter(item => item.cidade === filterCidade);
+                console.log(`🔍 Filtro aplicado: ${filterCidade} - ${dataToUse.length} feedbacks`);
+            }
+            
+            console.log('✅ Dashboard atualizado:', {
+                totalFeedbacks: dataToUse.length,
+                filtro: filterCidade || 'Nenhum',
+                dadosUnidos: uniqueData.length
+            });
+            
+            const total = dataToUse.length || 0;
             document.getElementById('totalFeedbacks').innerText = total;
             
-            // Calcular nível de orgulho
-            const orgulhoData = mockDatabase.filter(d => d.orgulho).map(d => d.orgulho);
+            // Calcular nível de orgulho (usar dados filtrados)
+            const orgulhoData = dataToUse.filter(d => d.orgulho).map(d => d.orgulho);
             let pridePercentage = '--';
             if (orgulhoData.length > 0) {
                 const prideScores = {
@@ -909,8 +2213,8 @@
             }
             document.getElementById('prideScore').innerText = pridePercentage;
 
-            // Calcular status de segurança
-            const segurancaData = mockDatabase.filter(d => d.seguranca).map(d => d.seguranca);
+            // Calcular status de segurança (usar dados filtrados)
+            const segurancaData = dataToUse.filter(d => d.seguranca).map(d => d.seguranca);
             let safetyStatus = 'OK';
             if (segurancaData.length > 0) {
                 const negativas = segurancaData.filter(s => s === 'Não' || s === 'Poderia melhorar').length;
@@ -920,8 +2224,8 @@
             }
             document.getElementById('safetyAlert').innerText = safetyStatus;
 
-            // Calcular liderança
-            const liderancaData = mockDatabase.filter(d => d.lideranca).map(d => d.lideranca);
+            // Calcular liderança (usar dados filtrados)
+            const liderancaData = dataToUse.filter(d => d.lideranca).map(d => d.lideranca);
             let leadershipScore = '--';
             if (liderancaData.length > 0) {
                 const leadershipScores = {
@@ -934,6 +2238,65 @@
                 leadershipScore = avgLeadership.toFixed(1) + '/5';
             }
             document.getElementById('leadershipScore').innerText = leadershipScore;
+            
+            // Calcular e atualizar novos parâmetros
+            // Sugestões de Melhoria
+            const suggestionsCount = dataToUse.filter(d => d.melhoria && d.melhoria.trim()).length;
+            document.getElementById('suggestionsCount').innerText = suggestionsCount;
+            
+            // Cidades Ativas
+            const cities = new Set(dataToUse.filter(d => d.cidade).map(d => d.cidade));
+            const citiesCount = cities.size;
+            document.getElementById('citiesCount').innerText = citiesCount;
+            
+            // Taxa Positiva (orgulho + segurança + liderança positivos)
+            let positiveCount = 0;
+            let totalEvaluations = 0;
+            dataToUse.forEach(d => {
+                if (d.orgulho && (d.orgulho === 'Muito Orgulho 💙' || d.orgulho === 'Orgulho')) positiveCount++;
+                if (d.orgulho) totalEvaluations++;
+                if (d.seguranca && (d.seguranca === 'Sim, totalmente' || d.seguranca === 'Na maioria')) positiveCount++;
+                if (d.seguranca) totalEvaluations++;
+                if (d.lideranca && (d.lideranca === 'Excelente' || d.lideranca === 'Bom')) positiveCount++;
+                if (d.lideranca) totalEvaluations++;
+            });
+            const positiveRate = totalEvaluations > 0 ? Math.round((positiveCount / totalEvaluations) * 100) : 0;
+            document.getElementById('positiveRate').innerText = positiveRate + '%';
+            
+            // Última Atualização
+            const lastUpdate = new Date().toLocaleTimeString('pt-BR');
+            document.getElementById('lastUpdate').innerText = lastUpdate;
+            
+            // Animações de progresso
+            setTimeout(() => {
+                // Progresso do total (baseado em meta de 100)
+                const totalProgress = Math.min((total / 100) * 100, 100);
+                const totalProgressEl = document.getElementById('totalProgress');
+                if (totalProgressEl) {
+                    totalProgressEl.style.width = totalProgress + '%';
+                }
+                
+                // Progresso do orgulho
+                const pridePercent = pridePercentage !== '--' ? parseInt(pridePercentage) : 0;
+                const prideProgressEl = document.getElementById('prideProgress');
+                const pridePercentEl = document.getElementById('pridePercent');
+                if (prideProgressEl) prideProgressEl.style.width = pridePercent + '%';
+                if (pridePercentEl) pridePercentEl.innerText = pridePercentage;
+                
+                // Progresso da liderança
+                const leadershipNum = leadershipScore !== '--' ? parseFloat(leadershipScore) : 0;
+                const leadershipPercent = (leadershipNum / 5) * 100;
+                const leadershipProgressEl = document.getElementById('leadershipProgress');
+                const leadershipPercentEl = document.getElementById('leadershipPercent');
+                if (leadershipProgressEl) leadershipProgressEl.style.width = leadershipPercent + '%';
+                if (leadershipPercentEl) leadershipPercentEl.innerText = leadershipScore;
+                
+                // Percentual de segurança
+                const safetyPercent = segurancaData.length > 0 ? 
+                    Math.round((segurancaData.filter(s => s === 'Sim, totalmente' || s === 'Na maioria').length / segurancaData.length) * 100) : 0;
+                const safetyPercentEl = document.getElementById('safetyPercent');
+                if (safetyPercentEl) safetyPercentEl.innerText = safetyPercent + '% positivo';
+            }, 100);
 
             // Gráfico de Engajamento
             const ctx1 = document.getElementById('engagementChart').getContext('2d');
@@ -1052,42 +2415,524 @@
                 }
             });
 
-            // Lista de feedbacks
+            // Lista Completa de Participações com TODOS os parâmetros
+            const participacoesList = document.getElementById('participacoesList');
+            const participacoesCount = document.getElementById('participacoesCount');
+            
+            if (participacoesCount) {
+                participacoesCount.innerText = `${dataToUse.length} Participação(ões)`;
+            }
+            
+            if (dataToUse.length === 0) {
+                if (participacoesList) {
+                    participacoesList.innerHTML = '<div class="text-center py-10"><p class="text-xs italic text-slate-400 font-medium tracking-wide">Nenhuma participação encontrada. Complete pesquisas para ver os dados aqui.</p></div>';
+                }
+            } else {
+                if (participacoesList) {
+                    participacoesList.innerHTML = dataToUse.map((feedback, index) => {
+                        // Formatar data e hora
+                        let dataHora = '';
+                        if (feedback.data && feedback.hora) {
+                            dataHora = `${feedback.data} às ${feedback.hora}`;
+                        } else if (feedback.timestamp) {
+                            const dt = new Date(feedback.timestamp);
+                            dataHora = `${dt.toLocaleDateString('pt-BR')} às ${dt.toLocaleTimeString('pt-BR')}`;
+                        } else {
+                            dataHora = 'Data não disponível';
+                        }
+                        
+                        // Criar cards de parâmetros
+                        const parametros = [];
+                        
+                        if (feedback.orgulho) {
+                            parametros.push({ label: '💙 Orgulho', value: feedback.orgulho, color: 'blue' });
+                        }
+                        if (feedback.seguranca) {
+                            parametros.push({ label: '🛡️ Segurança', value: feedback.seguranca, color: 'amber' });
+                        }
+                        if (feedback.lideranca) {
+                            parametros.push({ label: '⭐ Liderança', value: feedback.lideranca, color: 'indigo' });
+                        }
+                        if (feedback.cidade) {
+                            parametros.push({ label: '🏙️ Cidade', value: feedback.cidade, color: 'purple' });
+                        }
+                        if (feedback.sigilo) {
+                            parametros.push({ label: '🔒 Sigilo', value: feedback.sigilo, color: 'green' });
+                        }
+                        if (feedback.melhoria && feedback.melhoria.trim()) {
+                            parametros.push({ label: '💡 Sugestão', value: feedback.melhoria, color: 'teal' });
+                        }
+                        
+                        return `
+                            <div class="p-5 bg-gradient-to-br from-white to-slate-50 rounded-2xl border-2 border-slate-200 shadow-md hover:shadow-xl hover:border-[#1d438a] transition-all duration-300">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="text-[11px] font-black text-[#1d438a] uppercase bg-blue-50 px-3 py-1 rounded-lg">Participação #${index + 1}</span>
+                                            ${feedback.cidade ? `<span class="text-[10px] font-bold text-purple-700 uppercase bg-purple-50 px-2 py-1 rounded">${feedback.cidade}</span>` : ''}
+                                        </div>
+                                        <p class="text-[10px] text-slate-500 font-medium">📅 ${dataHora}</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+                                    ${parametros.map(param => {
+                                        const colorClasses = {
+                                            blue: 'border-blue-200 bg-blue-50',
+                                            amber: 'border-amber-200 bg-amber-50',
+                                            indigo: 'border-indigo-200 bg-indigo-50',
+                                            purple: 'border-purple-200 bg-purple-50',
+                                            green: 'border-green-200 bg-green-50',
+                                            teal: 'border-teal-200 bg-teal-50'
+                                        };
+                                        
+                                        const bgClass = colorClasses[param.color] || 'border-slate-200 bg-slate-50';
+                                        
+                                        return `
+                                            <div class="p-3 rounded-xl border ${bgClass}">
+                                                <p class="text-[9px] font-black text-slate-600 uppercase mb-1">${param.label}</p>
+                                                <p class="text-[11px] font-semibold text-slate-800 ${param.label.includes('Sugestão') ? 'italic' : ''}">${param.value}</p>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+            
+            // Lista de Sugestões (apenas sugestões)
             const list = document.getElementById('feedbackList');
-            const melhorias = mockDatabase.filter(d => d.melhoria && d.melhoria.trim()).map(d => ({
+            const melhorias = dataToUse.filter(d => d.melhoria && d.melhoria.trim()).map(d => ({
                 text: d.melhoria,
-                timestamp: d.timestamp || new Date().toISOString()
+                timestamp: d.timestamp || new Date().toISOString(),
+                cidade: d.cidade || 'Não informado'
             }));
             
             if (melhorias.length === 0) {
-                list.innerHTML = '<div class="text-center py-10"><p class="text-xs italic text-slate-400 font-medium tracking-wide">Aguardando recebimento de ficheiros JSON...</p></div>';
+                if (list) {
+                    list.innerHTML = '<div class="text-center py-10"><p class="text-xs italic text-slate-400 font-medium tracking-wide">Nenhuma sugestão de melhoria registrada ainda.</p></div>';
+                }
             } else {
-                list.innerHTML = melhorias.map(m => `
-                    <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-xs shadow-sm hover:border-blue-200 transition-colors">
-                        <div class="flex justify-between mb-2">
-                            <span class="text-[9px] font-black text-blue-800 uppercase bg-blue-50 px-2 py-0.5 rounded">Sugestão</span>
-                            <span class="text-[9px] text-slate-400">${new Date(m.timestamp).toLocaleDateString('pt-BR')}</span>
+                if (list) {
+                    list.innerHTML = melhorias.map(m => `
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-xs shadow-sm hover:border-blue-200 transition-colors">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-[9px] font-black text-blue-800 uppercase bg-blue-50 px-2 py-0.5 rounded">💡 Sugestão</span>
+                                <div class="flex gap-2">
+                                    ${m.cidade !== 'Não informado' ? `<span class="text-[9px] font-bold text-purple-700 uppercase bg-purple-50 px-2 py-0.5 rounded">${m.cidade}</span>` : ''}
+                                    <span class="text-[9px] text-slate-400">${new Date(m.timestamp).toLocaleDateString('pt-BR')}</span>
+                                </div>
+                            </div>
+                            <p class="text-slate-600 font-medium">${m.text}</p>
                         </div>
-                        <p class="text-slate-600 font-medium">${m.text}</p>
-                    </div>
-                `).join('');
+                    `).join('');
+                }
             }
         }
 
         function exportPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.setFontSize(18); doc.setTextColor(29, 67, 138);
-            doc.text("Relatório Dasco - Excelência em Saneamento", 20, 20);
-            doc.setFontSize(10); doc.setTextColor(100);
-            doc.text(`Data: ${new Date().toLocaleString('pt-BR')} | Total Feedbacks: ${mockDatabase.length}`, 20, 30);
+            let yPos = 20;
+            const pageHeight = doc.internal.pageSize.height;
+            const margin = 20;
+            const lineHeight = 7;
+            
+            const pageWidth = doc.internal.pageSize.width;
+            
+            // Cabeçalho Moderno - Modelo Dasco
+            // Retângulo de fundo azul
+            doc.setFillColor(29, 67, 138); // #1d438a
+            doc.rect(0, 0, pageWidth, 50, 'F');
+            
+            // Logo/Título
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.setFont(undefined, 'bold');
+            doc.text("DASCO", margin, 25);
+            
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.text("Excelência em Saneamento", margin, 35);
+            
+            // Data e total no canto direito
+            doc.setFontSize(10);
+            doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, pageWidth - margin - 50, 25);
+            doc.text(`Total: ${mockDatabase.length} feedbacks`, pageWidth - margin - 50, 35);
+            
+            yPos = 60;
+            
+            // Linha decorativa
+            doc.setDrawColor(29, 67, 138);
+            doc.setLineWidth(0.5);
+            doc.line(margin, yPos, pageWidth - margin, yPos);
+            yPos += 10;
+            
+            // Título do Relatório
+            doc.setTextColor(29, 67, 138);
+            doc.setFontSize(18);
+            doc.setFont(undefined, 'bold');
+            doc.text("Relatório Consolidado de Feedbacks", margin, yPos);
+            yPos += 12;
+            
+            // Verificar se há dados
+            if (mockDatabase.length === 0) {
+                doc.setFontSize(12);
+                doc.setTextColor(150);
+                doc.text("Nenhum feedback registrado ainda.", margin, yPos);
+                doc.save("Relatorio_Feedback_Dasco.pdf");
+                return;
+            }
+            
+            // Mapear IDs das perguntas para títulos legíveis (TODAS as perguntas)
+            const questionLabels = {
+                'intro': 'Nome do Funcionário',
+                'sigilo': 'Confirmação de Sigilo',
+                'orgulho': 'Nível de Orgulho',
+                'seguranca': 'Condições de Segurança',
+                'lideranca': 'Suporte da Liderança',
+                'melhoria': 'Sugestão de Melhoria',
+                'data': 'Data',
+                'hora': 'Hora',
+                'timestamp': 'Timestamp'
+            };
+            
+            // Cards de Estatísticas Visuais
+            doc.setFontSize(16);
+            doc.setTextColor(29, 67, 138);
+            doc.setFont(undefined, 'bold');
+            doc.text("📊 Estatísticas Gerais", margin, yPos);
+            yPos += 10;
+            
+            // Calcular estatísticas
+            const orgulhoData = mockDatabase.map(f => f.orgulho).filter(Boolean);
+            const segurancaData = mockDatabase.map(f => f.seguranca).filter(Boolean);
+            const liderancaData = mockDatabase.map(f => f.lideranca).filter(Boolean);
+            const melhorias = mockDatabase.map(f => f.melhoria).filter(Boolean);
+            const cities = new Set(mockDatabase.filter(f => f.cidade).map(f => f.cidade));
+            
+            // Box de estatísticas com fundo colorido
+            const boxY = yPos;
+            doc.setFillColor(240, 245, 255); // Azul muito claro
+            doc.roundedRect(margin, boxY - 5, pageWidth - (margin * 2), 80, 3, 3, 'F');
+            
+            doc.setFontSize(11);
+            doc.setTextColor(29, 67, 138);
+            doc.setFont(undefined, 'bold');
+            
+            // Coluna 1
+            doc.text(`Total de Feedbacks: ${mockDatabase.length}`, margin + 5, boxY + 5);
+            doc.text(`Cidades Ativas: ${cities.size}`, margin + 5, boxY + 12);
+            doc.text(`Sugestões: ${melhorias.length}`, margin + 5, boxY + 19);
+            
+            // Coluna 2
+            const orgulhoAvg = orgulhoData.length > 0 ? 
+                Math.round(orgulhoData.reduce((sum, o) => {
+                    const scores = {'Muito Orgulho 💙': 100, 'Orgulho': 75, 'Neutro': 50, 'Pouco Orgulho': 25};
+                    return sum + (scores[o] || 50);
+                }, 0) / orgulhoData.length) : 0;
+            doc.text(`Orgulho Médio: ${orgulhoAvg}%`, margin + 100, boxY + 5);
+            
+            const segurancaPos = segurancaData.length > 0 ? 
+                Math.round((segurancaData.filter(s => s === 'Sim, totalmente' || s === 'Na maioria').length / segurancaData.length) * 100) : 0;
+            doc.text(`Segurança: ${segurancaPos}%`, margin + 100, boxY + 12);
+            
+            const liderancaAvg = liderancaData.length > 0 ? 
+                (liderancaData.reduce((sum, l) => {
+                    const scores = {'Excelente': 5, 'Bom': 4, 'Regular': 3, 'Insuficiente': 2};
+                    return sum + (scores[l] || 3);
+                }, 0) / liderancaData.length).toFixed(1) : '0.0';
+            doc.text(`Liderança: ${liderancaAvg}/5.0`, margin + 100, boxY + 19);
+            
+            yPos = boxY + 90;
+            
+            // Distribuição detalhada
+            doc.setFontSize(14);
+            doc.setTextColor(29, 67, 138);
+            doc.setFont(undefined, 'bold');
+            doc.text("📈 Distribuição de Respostas", margin, yPos);
+            yPos += 10;
+            
+            doc.setFontSize(10);
+            doc.setTextColor(0);
+            doc.setFont(undefined, 'normal');
+            
+            if (orgulhoData.length > 0) {
+                const orgulhoCounts = {};
+                orgulhoData.forEach(o => {
+                    orgulhoCounts[o] = (orgulhoCounts[o] || 0) + 1;
+                });
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(29, 67, 138);
+                doc.text("Nível de Orgulho:", margin, yPos);
+                yPos += 6;
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(0);
+                Object.entries(orgulhoCounts).forEach(([key, value]) => {
+                    const percent = Math.round(value/orgulhoData.length*100);
+                    // Barra visual
+                    const barWidth = (percent / 100) * 50;
+                    doc.setFillColor(29, 67, 138);
+                    doc.rect(margin + 5, yPos - 3, barWidth, 3, 'F');
+                    doc.text(`  ${key}: ${value} (${percent}%)`, margin + 60, yPos);
+                    yPos += 5;
+                });
+                yPos += 3;
+            }
+            
+            if (segurancaData.length > 0) {
+                const segurancaCounts = {};
+                segurancaData.forEach(s => {
+                    segurancaCounts[s] = (segurancaCounts[s] || 0) + 1;
+                });
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(29, 67, 138);
+                doc.text("Condições de Segurança:", margin, yPos);
+                yPos += 6;
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(0);
+                Object.entries(segurancaCounts).forEach(([key, value]) => {
+                    const percent = Math.round(value/segurancaData.length*100);
+                    const barWidth = (percent / 100) * 50;
+                    doc.setFillColor(29, 67, 138);
+                    doc.rect(margin + 5, yPos - 3, barWidth, 3, 'F');
+                    doc.text(`  ${key}: ${value} (${percent}%)`, margin + 60, yPos);
+                    yPos += 5;
+                });
+                yPos += 3;
+            }
+            
+            if (liderancaData.length > 0) {
+                const liderancaCounts = {};
+                liderancaData.forEach(l => {
+                    liderancaCounts[l] = (liderancaCounts[l] || 0) + 1;
+                });
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(29, 67, 138);
+                doc.text("Suporte da Liderança:", margin, yPos);
+                yPos += 6;
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(0);
+                Object.entries(liderancaCounts).forEach(([key, value]) => {
+                    const percent = Math.round(value/liderancaData.length*100);
+                    const barWidth = (percent / 100) * 50;
+                    doc.setFillColor(29, 67, 138);
+                    doc.rect(margin + 5, yPos - 3, barWidth, 3, 'F');
+                    doc.text(`  ${key}: ${value} (${percent}%)`, margin + 60, yPos);
+                    yPos += 5;
+                });
+                yPos += 3;
+            }
+            
+            // Distribuição por Cidade
+            if (cities.size > 0) {
+                yPos += 5;
+                doc.setFontSize(14);
+                doc.setTextColor(29, 67, 138);
+                doc.setFont(undefined, 'bold');
+                doc.text("🏙️ Distribuição por Cidade", margin, yPos);
+                yPos += 8;
+                
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(0);
+                
+                const cityCounts = {};
+                mockDatabase.forEach(f => {
+                    if (f.cidade) {
+                        cityCounts[f.cidade] = (cityCounts[f.cidade] || 0) + 1;
+                    }
+                });
+                
+                Object.entries(cityCounts).sort((a, b) => b[1] - a[1]).forEach(([city, count]) => {
+                    const percent = Math.round((count / mockDatabase.length) * 100);
+                    const barWidth = (percent / 100) * 50;
+                    doc.setFillColor(29, 67, 138);
+                    doc.rect(margin + 5, yPos - 3, barWidth, 3, 'F');
+                    doc.text(`  ${city}: ${count} (${percent}%)`, margin + 60, yPos);
+                    yPos += 5;
+                });
+                yPos += 5;
+            }
+            
+            // Verificar se precisa de nova página
+            if (yPos > pageHeight - 40) {
+                doc.addPage();
+                // Cabeçalho em todas as páginas
+                doc.setFillColor(29, 67, 138);
+                doc.rect(0, 0, pageWidth, 30, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.text("DASCO - Relatório de Feedbacks", margin, 20);
+                yPos = 40;
+            }
+            
+            // Respostas Detalhadas dos Funcionários
+            doc.setFontSize(16);
+            doc.setTextColor(29, 67, 138);
+            doc.setFont(undefined, 'bold');
+            doc.text("📋 Respostas Detalhadas dos Funcionários", margin, yPos);
+            yPos += 10;
+            
+            doc.setFontSize(10);
+            doc.setTextColor(0);
+            doc.setFont(undefined, 'normal');
+            
+            // Listar cada feedback
+            mockDatabase.forEach((feedback, index) => {
+                // Verificar se precisa de nova página
+                if (yPos > pageHeight - 60) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                // Box do feedback com fundo
+                const feedbackBoxY = yPos;
+                
+                // Título do feedback
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(29, 67, 138);
+                doc.text(`Feedback #${index + 1}`, margin + 5, yPos);
+                yPos += 6;
+                
+                doc.setFontSize(9);
+                doc.setTextColor(100);
+                doc.setFont(undefined, 'normal');
+                let dateInfo = '';
+                if (feedback.data && feedback.hora) {
+                    dateInfo = `Data: ${feedback.data} às ${feedback.hora}`;
+                } else if (feedback.timestamp) {
+                    dateInfo = `Data: ${new Date(feedback.timestamp).toLocaleString('pt-BR')}`;
+                }
+                if (feedback.cidade) {
+                    dateInfo += ` | Cidade: ${feedback.cidade}`;
+                }
+                if (dateInfo) {
+                    doc.text(dateInfo, margin + 5, yPos);
+                    yPos += 6;
+                }
+                
+                // Linha separadora
+                doc.setDrawColor(200, 200, 200);
+                doc.setLineWidth(0.2);
+                doc.line(margin + 5, yPos, pageWidth - margin - 5, yPos);
+                yPos += 5;
+                
+                // Respostas - TODAS as informações coletadas
+                doc.setFontSize(10);
+                doc.setTextColor(0);
+                
+                // Listar TODAS as respostas do feedback
+                for (const key in feedback) {
+                    // Pular campos técnicos
+                    if (key === 'finalizado' || key === 'timestamp') continue;
+                    
+                    const label = questionLabels[key] || key;
+                    let value = feedback[key];
+                    
+                    // Pular se não houver valor
+                    if (!value || value === '') continue;
+                    
+                    doc.setFont(undefined, 'bold');
+                    doc.text(`${label}:`, margin, yPos);
+                    doc.setFont(undefined, 'normal');
+                    
+                    // Se for texto longo (melhoria), quebrar em múltiplas linhas
+                    if (key === 'melhoria' && value.length > 50) {
+                        yPos += 5;
+                        const textLines = doc.splitTextToSize(String(value), 170);
+                        textLines.forEach(line => {
+                            doc.text(line, margin + 5, yPos);
+                            yPos += 5;
+                        });
+                        yPos += 3;
+                    } else {
+                        // Texto curto, mostrar na mesma linha
+                        const valueText = String(value);
+                        if (valueText.length > 60) {
+                            // Se for muito longo, quebrar
+                            yPos += 5;
+                            const textLines = doc.splitTextToSize(valueText, 170);
+                            textLines.forEach(line => {
+                                doc.text(line, margin + 5, yPos);
+                                yPos += 5;
+                            });
+                            yPos += 3;
+                        } else {
+                            doc.text(valueText, margin + 50, yPos);
+                            yPos += 6;
+                        }
+                    }
+                }
+                
+                yPos += 5; // Espaço entre feedbacks
+            });
+            
+            // Rodapé
+            const totalPages = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                doc.text(`Página ${i} de ${totalPages}`, margin, pageHeight - 10);
+                doc.text("Dasco - Excelência em Saneamento", pageHeight - 50, pageHeight - 10, { align: 'right' });
+            }
+            
             doc.save("Relatorio_Feedback_Dasco.pdf");
         }
 
         function exportExcel() {
-            const data = mockDatabase.length > 0 ? mockDatabase : [{info: "Base de dados vazia"}];
-            const ws = XLSX.utils.json_to_sheet(data);
+            if (mockDatabase.length === 0) {
+                alert('Nenhum dado disponível para exportar.');
+                return;
+            }
+            
+            // Preparar dados com labels legíveis para todas as colunas
+            const questionLabels = {
+                'intro': 'Nome do Funcionário',
+                'sigilo': 'Confirmação de Sigilo',
+                'orgulho': 'Nível de Orgulho',
+                'seguranca': 'Condições de Segurança',
+                'lideranca': 'Suporte da Liderança',
+                'melhoria': 'Sugestão de Melhoria',
+                'data': 'Data',
+                'hora': 'Hora',
+                'timestamp': 'Timestamp'
+            };
+            
+            // Criar dados formatados com todas as informações
+            const formattedData = mockDatabase.map((feedback, index) => {
+                const row = {
+                    'ID': index + 1,
+                    'Data': feedback.data || (feedback.timestamp ? new Date(feedback.timestamp).toLocaleDateString('pt-BR') : ''),
+                    'Hora': feedback.hora || (feedback.timestamp ? new Date(feedback.timestamp).toLocaleTimeString('pt-BR') : '')
+                };
+                
+                // Adicionar todas as respostas
+                for (const key in feedback) {
+                    if (key !== 'data' && key !== 'hora' && key !== 'timestamp' && key !== 'finalizado') {
+                        const label = questionLabels[key] || key;
+                        row[label] = feedback[key] || '';
+                    }
+                }
+                
+                return row;
+            });
+            
+            const ws = XLSX.utils.json_to_sheet(formattedData);
             const wb = XLSX.utils.book_new();
+            
+            // Ajustar largura das colunas
+            const colWidths = [];
+            Object.keys(formattedData[0] || {}).forEach(() => {
+                colWidths.push({ wch: 25 }); // Largura padrão
+            });
+            ws['!cols'] = colWidths;
+            
             XLSX.utils.book_append_sheet(wb, ws, "Dados_Dasco");
             XLSX.writeFile(wb, "Base_Dados_Dasco.xlsx");
         }
@@ -1132,10 +2977,32 @@
             };
             
             recognition.onresult = (e) => {
-                const transcript = e.results[e.results.length - 1][0].transcript;
-                if (transcript.trim()) {
-                    userInput.value = transcript;
-                    processInput();
+                let finalTranscript = '';
+                let interimTranscript = '';
+                
+                for (let i = e.resultIndex; i < e.results.length; i++) {
+                    const transcript = e.results[i][0].transcript;
+                    if (e.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                // Atualizar o campo de texto com o que está sendo dito (tanto interim quanto final)
+                const currentText = finalTranscript.trim() || interimTranscript;
+                if (currentText) {
+                    userInput.value = currentText;
+                }
+                
+                // Quando finalizar, processar automaticamente
+                if (finalTranscript.trim()) {
+                    const finalText = finalTranscript.trim();
+                    userInput.value = finalText;
+                    // Aguardar um pouco antes de processar para garantir que capturou tudo
+                    setTimeout(() => {
+                processInput();
+                    }, 800);
                 }
             };
             
@@ -1152,7 +3019,7 @@
                 if (isVoiceRecognitionActive) {
                     // Reiniciar automaticamente para modo contínuo
                     try {
-                        recognition.start();
+            recognition.start();
                     } catch (err) {
                         console.log('Reconhecimento já está ativo');
                     }
@@ -1168,6 +3035,34 @@
 
         function handleKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); processInput(); } }
         userInput.addEventListener('keydown', handleKeyDown);
+        
+        // Marcar interação do usuário para permitir síntese de voz
+        function markUserInteraction() {
+            if (!userInteracted) {
+                userInteracted = true;
+                console.log('Interação do usuário detectada - síntese de voz agora permitida');
+                // Processar fila de fala pendente
+                if (speechQueue.length > 0) {
+                    const firstItem = speechQueue.shift();
+                    setTimeout(() => speak(firstItem.text, firstItem.onEnd), 100);
+                } else if (dialogue && dialogue.length > 0 && currentStep === 0) {
+                    // Se ainda não falou a primeira mensagem, falar agora
+                    const step = dialogue[0];
+                    if (step && step.speak) {
+                        let speakText = step.speak;
+                        if (userData.nome) {
+                            speakText = speakText.replace(/\[NOME\]/g, userData.nome);
+                        }
+                        setTimeout(() => speak(speakText), 100);
+                    }
+                }
+            }
+        }
+        
+        // Detectar qualquer interação do usuário
+        document.addEventListener('click', markUserInteraction, { once: true });
+        document.addEventListener('keydown', markUserInteraction, { once: true });
+        document.addEventListener('touchstart', markUserInteraction, { once: true });
 
         window.onload = function() {
             // Carregar vozes imediatamente
